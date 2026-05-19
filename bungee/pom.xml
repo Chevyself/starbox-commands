@@ -33,6 +33,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>net.md-5</groupId>
+      <artifactId>bungeecord-serializer</artifactId>
+      <version>${bungeecord-serializer.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>com.github.chevyself.starbox</groupId>
       <artifactId>common-mc</artifactId>
       <version>1.0.0_beta</version>
@@ -47,8 +53,4 @@
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>
   </repositories>
-
-  <properties>
-    <bungeecord-api.version>1.19-R0.1-SNAPSHOT</bungeecord-api.version>
-  </properties>
 </project>

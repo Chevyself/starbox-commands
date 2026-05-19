@@ -25,6 +25,12 @@
       <version>${bungeecord-chat.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>net.md-5</groupId>
+      <artifactId>bungeecord-serializer</artifactId>
+      <version>${bungeecord-serializer.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <repositories>

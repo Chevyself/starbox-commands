@@ -85,7 +85,9 @@
     <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <bungeecord-chat.version>1.19-R0.1-SNAPSHOT</bungeecord-chat.version>
+    <bungeecord-chat.version>1.21-R0.4</bungeecord-chat.version>
+    <bungeecord-serializer.version>1.21-R0.4</bungeecord-serializer.version>
+    <bungeecord-api.version>1.21-R0.4</bungeecord-api.version>
   </properties>
 
   <repositories>

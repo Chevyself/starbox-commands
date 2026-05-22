@@ -9,10 +9,11 @@ import lombok.Getter;
  * @param <A> The type of the first object
  * @param <B> The type of the second object
  */
+@Getter
 public final class Pair<A, B> {
 
-  @Getter private final A a;
-  @Getter private final B b;
+  private final A a;
+  private final B b;
 
   /**
    * Create a new pair.

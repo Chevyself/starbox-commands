@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * This annotation targets a class that contains command methods.
  *
- * @see com.github.chevyself.starbox.StarboxCommandManager#registerAllIn(String)
+ * @see com.github.chevyself.starbox.CommandManager#registerAllIn(String)
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

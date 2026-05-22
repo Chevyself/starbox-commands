@@ -1,8 +1,8 @@
 package com.github.chevyself.starbox.exceptions;
 
-import com.github.chevyself.starbox.ReflectCommand;
 import com.github.chevyself.starbox.annotations.Required;
 import com.github.chevyself.starbox.arguments.Argument;
+import com.github.chevyself.starbox.commands.ReflectCommand;
 import com.github.chevyself.starbox.exceptions.type.StarboxException;
 import lombok.NonNull;
 

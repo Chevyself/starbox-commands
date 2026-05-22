@@ -1,7 +1,7 @@
 package com.github.chevyself.starbox.jda.providers.type;
 
 import com.github.chevyself.starbox.jda.context.CommandContext;
-import com.github.chevyself.starbox.providers.type.StarboxArgumentProvider;
+import com.github.chevyself.starbox.providers.StarboxArgumentProvider;
 
 /**
  * An extension for an argument provider using JDA.

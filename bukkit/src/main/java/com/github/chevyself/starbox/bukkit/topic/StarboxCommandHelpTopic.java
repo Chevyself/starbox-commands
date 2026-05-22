@@ -1,8 +1,7 @@
 package com.github.chevyself.starbox.bukkit.topic;
 
-import com.github.chevyself.starbox.StarboxCommand;
-import com.github.chevyself.starbox.bukkit.StarboxBukkitCommand;
-import com.github.chevyself.starbox.bukkit.messages.MessagesProvider;
+import com.github.chevyself.starbox.bukkit.commands.BukkitCommand;
+import com.github.chevyself.starbox.bukkit.messages.BukkitMessagesProvider;
 import java.util.Collection;
 import lombok.Getter;
 import lombok.NonNull;
@@ -17,28 +16,30 @@ import org.bukkit.help.HelpTopic;
  * Command {@link HelpTopic} is basically the messages that appear in the command '/help
  * <command_name>'. This helps to create a {@link HelpTopic} for {@link StarboxCommandHelpTopic}
  *
- * <p>To know how this is formatted check {@link MessagesProvider} and also the constructor {@link
- * #StarboxCommandHelpTopic(StarboxBukkitCommand, StarboxCommandHelpTopic, MessagesProvider)} has
- * more detailed information about the {@link HelpTopic} {}
+ * <p>To know how this is formatted check {@link BukkitMessagesProvider} and also the constructor
+ * {@link #StarboxCommandHelpTopic(StarboxBukkitCommand, StarboxCommandHelpTopic,
+ * BukkitMessagesProvider)} has more detailed information about the {@link HelpTopic} {}
  */
+@Setter
+@Getter
 class StarboxCommandHelpTopic extends HelpTopic {
 
   @NonNull private static final Server server = Bukkit.getServer();
   /** This instance of {@link HelpMap} is used to parseAndRegister topics for children commands. */
   @NonNull private static final HelpMap helpMap = StarboxCommandHelpTopic.server.getHelpMap();
 
-  @NonNull @Getter @Setter private MessagesProvider provider;
+  @NonNull private BukkitMessagesProvider provider;
 
   /**
-   * Create the topic. The topic is created with {@link MessagesProvider}:
+   * Create the topic. The topic is created with {@link BukkitMessagesProvider}:
    *
    * <ul>
-   *   <li>The name of the command = {@link MessagesProvider#commandName(StarboxBukkitCommand,
+   *   <li>The name of the command = {@link BukkitMessagesProvider#commandName(StarboxBukkitCommand,
    *       String)}
    *   <li>The short text/summary of the command = {@link
-   *       MessagesProvider#commandShortText(StarboxBukkitCommand)}
+   *       BukkitMessagesProvider#commandShortText(StarboxBukkitCommand)}
    *   <li>The full description of the command = {@link
-   *       MessagesProvider#commandFullText(StarboxBukkitCommand, String, String, String)}
+   *       BukkitMessagesProvider#commandFullText(StarboxBukkitCommand, String, String, String)}
    * </ul>
    *
    * <p>For each children inside the command {@link StarboxCommand#getChildren()} another {@link
@@ -49,15 +50,15 @@ class StarboxCommandHelpTopic extends HelpTopic {
    * @param provider the messages' provider to format messages for the help topic
    */
   StarboxCommandHelpTopic(
-      @NonNull StarboxBukkitCommand command,
+      @NonNull BukkitCommand command,
       StarboxCommandHelpTopic parent,
-      @NonNull MessagesProvider provider) {
+      @NonNull BukkitMessagesProvider provider) {
     this.provider = provider;
     this.amendedPermission = StarboxCommandHelpTopic.getAmendedPermission(command);
     this.name = provider.commandName(command, parent == null ? null : parent.getName());
     this.shortText = provider.commandShortText(command);
     this.fullText = provider.commandFullText(command, this.buildChildren(command));
-    for (StarboxBukkitCommand child : command.getChildren()) {
+    for (BukkitCommand child : command.getChildren()) {
       StarboxCommandHelpTopic.helpMap.addTopic(new StarboxCommandHelpTopic(child, this, provider));
     }
   }
@@ -69,23 +70,23 @@ class StarboxCommandHelpTopic extends HelpTopic {
    * @param command the command to get the permission from
    * @return the permission of the command
    */
-  public static String getAmendedPermission(@NonNull StarboxBukkitCommand command) {
+  public static String getAmendedPermission(@NonNull BukkitCommand command) {
     String node = command.getPermission();
     return node == null ? null : node.isEmpty() ? null : node;
   }
 
   /**
    * Build the children help. This will use a {@link StringBuilder} and append {@link
-   * MessagesProvider#childCommand(StarboxBukkitCommand, StarboxBukkitCommand)}
+   * BukkitMessagesProvider#childCommand(StarboxBukkitCommand, StarboxBukkitCommand)}
    *
    * @param command the parent to get the children help from
    * @return the help of the children command as string
    */
   @NonNull
-  private String buildChildren(@NonNull StarboxBukkitCommand command) {
+  private String buildChildren(@NonNull BukkitCommand command) {
     StringBuilder builder = new StringBuilder();
-    final Collection<StarboxBukkitCommand> commands = command.getChildren();
-    for (StarboxBukkitCommand child : commands) {
+    final Collection<BukkitCommand> commands = command.getChildren();
+    for (BukkitCommand child : commands) {
       builder.append(this.provider.childCommand(child, command));
     }
     return builder.toString();

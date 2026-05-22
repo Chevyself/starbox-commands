@@ -1,9 +1,9 @@
 package com.github.chevyself.starbox.jda.context;
 
-import com.github.chevyself.starbox.flags.CommandLineParser;
-import com.github.chevyself.starbox.jda.JdaCommand;
-import com.github.chevyself.starbox.jda.messages.MessagesProvider;
-import com.github.chevyself.starbox.providers.registry.ProvidersRegistry;
+import com.github.chevyself.starbox.jda.commands.JdaCommand;
+import com.github.chevyself.starbox.messages.MessagesProvider;
+import com.github.chevyself.starbox.parsers.CommandLineParser;
+import com.github.chevyself.starbox.registry.ProvidersRegistry;
 import java.util.List;
 import java.util.Optional;
 import lombok.Getter;
@@ -26,7 +26,7 @@ public class SlashCommandContext implements CommandContext {
   @NonNull @Getter private final JdaCommand command;
   @NonNull @Getter private final User sender;
   @NonNull @Getter private final ProvidersRegistry<CommandContext> providersRegistry;
-  @NonNull @Getter private final MessagesProvider messagesProvider;
+  @NonNull @Getter private final MessagesProvider<CommandContext> messagesProvider;
   @NonNull @Getter private final SlashCommandInteractionEvent event;
   @NonNull @Getter private final List<OptionMapping> options;
   @NonNull private final MessageChannel channel;
@@ -50,7 +50,7 @@ public class SlashCommandContext implements CommandContext {
       @NonNull JdaCommand command,
       @NonNull User sender,
       @NonNull ProvidersRegistry<CommandContext> providersRegistry,
-      @NonNull MessagesProvider messagesProvider,
+      @NonNull MessagesProvider<CommandContext> messagesProvider,
       @NonNull SlashCommandInteractionEvent event,
       @NonNull List<OptionMapping> options,
       @NonNull MessageChannel channel) {
@@ -80,7 +80,7 @@ public class SlashCommandContext implements CommandContext {
     return new SlashCommandContext(
         this.jda,
         this.commandLineParser.copyFrom(1, command.getOptions()),
-        this.command,
+        command,
         this.sender,
         this.providersRegistry,
         this.messagesProvider,

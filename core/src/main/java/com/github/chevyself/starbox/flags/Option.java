@@ -1,6 +1,7 @@
 package com.github.chevyself.starbox.flags;
 
-import com.github.chevyself.starbox.StarboxCommand;
+import com.github.chevyself.starbox.annotations.Command;
+import com.github.chevyself.starbox.commands.StarboxCommand;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -110,7 +111,7 @@ public class Option implements StarboxFlag {
    */
   @NonNull
   public static String generateUsage(@NonNull Collection<? extends Option> options) {
-    if (options.size() == 0) {
+    if (options.isEmpty()) {
       return "";
     }
     StringBuilder builder = new StringBuilder();
@@ -123,6 +124,17 @@ public class Option implements StarboxFlag {
     }
     builder.setLength(builder.length() - 1);
     return builder.toString();
+  }
+
+  /**
+   * Parse the options from a {@link Command} annotation.
+   *
+   * @param annotation the annotation to parse
+   * @return the parsed options
+   */
+  @NonNull
+  public static List<Option> of(@NonNull Command annotation) {
+    return Option.of(annotation.flags());
   }
 
   @Override

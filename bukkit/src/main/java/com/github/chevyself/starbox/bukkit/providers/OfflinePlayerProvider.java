@@ -1,6 +1,5 @@
 package com.github.chevyself.starbox.bukkit.providers;
 
-import com.github.chevyself.starbox.bukkit.CommandManager;
 import com.github.chevyself.starbox.bukkit.context.CommandContext;
 import com.github.chevyself.starbox.bukkit.providers.type.BukkitArgumentProvider;
 import com.github.chevyself.starbox.exceptions.ArgumentProviderException;
@@ -11,7 +10,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-/** Provides the {@link CommandManager} with the object {@link OfflinePlayer}. */
+/**
+ * Provides the {@link com.github.chevyself.starbox.CommandManager} with the object {@link
+ * OfflinePlayer}.
+ */
 public class OfflinePlayerProvider implements BukkitArgumentProvider<OfflinePlayer> {
 
   @Override
@@ -28,11 +30,12 @@ public class OfflinePlayerProvider implements BukkitArgumentProvider<OfflinePlay
         return player;
       }
     }
-    return context.get(string, Player.class, context);
+    return context.fromString(string, Player.class, context);
   }
 
   @Override
-  public @NonNull List<String> getSuggestions(@NonNull String string, CommandContext context) {
+  public @NonNull List<String> getSuggestions(
+      @NonNull String string, @NonNull CommandContext context) {
     List<String> suggestions = new ArrayList<>();
     for (OfflinePlayer player : Bukkit.getOfflinePlayers()) {
       if (player.getName() != null) {

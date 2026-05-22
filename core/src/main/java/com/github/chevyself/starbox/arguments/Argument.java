@@ -6,8 +6,8 @@ import com.github.chevyself.starbox.context.StarboxCommandContext;
 import com.github.chevyself.starbox.exceptions.ArgumentProviderException;
 import com.github.chevyself.starbox.exceptions.CommandRegistrationException;
 import com.github.chevyself.starbox.exceptions.MissingArgumentException;
-import com.github.chevyself.starbox.messages.StarboxMessagesProvider;
-import com.github.chevyself.starbox.providers.registry.ProvidersRegistry;
+import com.github.chevyself.starbox.messages.MessagesProvider;
+import com.github.chevyself.starbox.registry.ProvidersRegistry;
 import com.github.chevyself.starbox.util.Pair;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -18,10 +18,10 @@ import java.util.Map;
 import lombok.NonNull;
 
 /**
- * An argument can change the output of a command and this type is used for commands that are parsed
- * using reflection.
+ * This class represents an argument of a command. An argument can change the output of a command,
+ * this type is used for commands that are parsed using reflection.
  *
- * <p>There's three main types of arguments:
+ * <p>There's two types of arguments:
  *
  * <ul>
  *   <li>{@link ExtraArgument} which is not exactly given by the user but by the context of the
@@ -29,21 +29,23 @@ import lombok.NonNull;
  *       #isEmpty(Annotation[])} if this method returns true it will be considered as an {@link
  *       ExtraArgument}
  *   <li>{@link SingleArgument} this argument expects a user input unless it is annotated with
- *       {@link Free}. It has a place inside the command usage: [prefix][command] [argument]...
- *       <p>This kind of argument has three different behaviours
+ *       {@link Free} or {@link Required}. It has a place inside the command usage:
+ *       [prefix][command] [argument]...
+ *       <p>This kind of argument has two different {@link ArgumentBehaviour}
+ * </ul>
  *
- * @see ArgumentBehaviour
- *     </ul>
- *     <p>To know how arguments are parsed you can check {@link #parseArguments(Method)} or {@link
- *     #parseArguments(Class[], Annotation[][])} and to know how a single argument is parsed see
- *     {@link #parseArgument(Class, Annotation[], int)}
- *     <p>Here's an example:
- *     <pre>{@code
+ * <p>To know how arguments are parsed you can check {@link #parseArguments(Method)} or {@link
+ * #parseArguments(Class[], Annotation[][])} and to know how a single argument is parsed see {@link
+ * #parseArgument(Class, Annotation[], int)}
+ *
+ * <p>Here's an example:
+ *
+ * <pre>{@code
  *  public class ArgumentsSample {
  *
  *     public static void main(String[] args) throws NoSuchMethodException {
  *         // Parsing from the AMethod of this same class
- *         List<Argument<?>> arguments = Argument.p@arseArguments(ArgumentsSample.class.getMethod("AMethod", StarboxCommandContext.class, String.class, String.class, String[].class));
+ *         List<Argument<?>> arguments = Argument.parseArguments(ArgumentsSample.class.getMethod("AMethod", StarboxCommandContext.class, String.class, String.class, String[].class));
  *         for (Argument<?> argument : arguments) {
  *             System.out.println("argument = " + argument);
  *         }
@@ -62,7 +64,9 @@ import lombok.NonNull;
  *     }
  * }
  * }</pre>
- *     <p>To know how to create usage messages check: {@link #generateUsage(List)}
+ *
+ * <p>To know how to create usage messages check: {@link #generateUsage(List)}
+ *
  * @param <O> the type of the class that the argument has to supply
  */
 public interface Argument<O> {
@@ -316,9 +320,6 @@ public interface Argument<O> {
     if (string.startsWith("@")) {
       return Argument.parse(
           mappings, string.substring(1), suggestions, ArgumentBehaviour.CONTINUOUS, position);
-    } else if (string.startsWith("*")) {
-      return Argument.parse(
-          mappings, string.substring(1), suggestions, ArgumentBehaviour.MULTIPLE, position);
     } else {
       boolean required;
       if (string.startsWith("<") && string.endsWith(">")) {
@@ -398,9 +399,9 @@ public interface Argument<O> {
    * @throws ArgumentProviderException if the object of the argument cannot be provided
    * @throws MissingArgumentException if the argument is required and there's no input
    */
-  <T extends StarboxCommandContext> Pair<Object, Integer> process(
+  <T extends StarboxCommandContext<T, ?>> Pair<Object, Integer> process(
       @NonNull ProvidersRegistry<T> registry,
-      @NonNull StarboxMessagesProvider<T> messages,
+      @NonNull MessagesProvider<T> messages,
       @NonNull T context,
       int lastIndex)
       throws ArgumentProviderException, MissingArgumentException;

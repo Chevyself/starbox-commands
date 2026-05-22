@@ -1,18 +1,16 @@
 package com.github.chevyself.starbox.jda.listener;
 
-import com.github.chevyself.starbox.flags.CommandLineParser;
-import com.github.chevyself.starbox.jda.CommandManager;
-import com.github.chevyself.starbox.jda.JdaCommand;
+import com.github.chevyself.starbox.CommandManager;
+import com.github.chevyself.starbox.jda.JdaAdapter;
 import com.github.chevyself.starbox.jda.ListenerOptions;
-import com.github.chevyself.starbox.jda.UnknownCommand;
+import com.github.chevyself.starbox.jda.commands.JdaCommand;
+import com.github.chevyself.starbox.jda.commands.UnknownCommand;
 import com.github.chevyself.starbox.jda.context.CommandContext;
 import com.github.chevyself.starbox.jda.context.GenericCommandContext;
 import com.github.chevyself.starbox.jda.context.GuildCommandContext;
 import com.github.chevyself.starbox.jda.context.SlashCommandContext;
-import com.github.chevyself.starbox.jda.messages.MessagesProvider;
-import com.github.chevyself.starbox.jda.result.JdaResult;
-import com.github.chevyself.starbox.jda.result.Result;
-import com.github.chevyself.starbox.jda.result.ResultType;
+import com.github.chevyself.starbox.jda.messages.JdaMessagesProvider;
+import com.github.chevyself.starbox.parsers.CommandLineParser;
 import java.util.Arrays;
 import lombok.Getter;
 import lombok.NonNull;
@@ -26,24 +24,29 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
 
 /** The main listener of command execution. */
+@Getter
 public class CommandListener implements EventListener {
 
-  @NonNull @Getter private final CommandManager manager;
-  @NonNull @Getter private final ListenerOptions listenerOptions;
-  @NonNull @Getter private final MessagesProvider messagesProvider;
+  @NonNull private final CommandManager<CommandContext, JdaCommand> manager;
+  @NonNull private final JdaAdapter adapter;
+  @NonNull private final JdaMessagesProvider messagesProvider;
+  @NonNull private final ListenerOptions listenerOptions;
 
   /**
    * Create an instance.
    *
    * @param manager the command manager
-   * @param listenerOptions the options of the manager
    * @param messagesProvider the provider of messages
+   * @param adapter the jda adapter
+   * @param listenerOptions the options of the manager
    */
   public CommandListener(
-      @NonNull CommandManager manager,
-      @NonNull ListenerOptions listenerOptions,
-      @NonNull MessagesProvider messagesProvider) {
+      @NonNull CommandManager<CommandContext, JdaCommand> manager,
+      @NonNull JdaMessagesProvider messagesProvider,
+      @NonNull JdaAdapter adapter,
+      @NonNull ListenerOptions listenerOptions) {
     this.manager = manager;
+    this.adapter = adapter;
     this.listenerOptions = listenerOptions;
     this.messagesProvider = messagesProvider;
   }
@@ -77,7 +80,7 @@ public class CommandListener implements EventListener {
     String[] strings =
         event.getOptions().stream().map(OptionMapping::getAsString).toArray(String[]::new);
     JdaCommand command = this.getCommand(event.isFromGuild() ? event.getGuild() : null, name);
-    CommandLineParser parser = CommandLineParser.parse(command.getOptions(), false, strings);
+    CommandLineParser parser = CommandLineParser.parse(command.getOptions(), strings);
     CommandContext context =
         new SlashCommandContext(
             event.getJDA(),
@@ -94,30 +97,9 @@ public class CommandListener implements EventListener {
 
   @NonNull
   private JdaCommand getCommand(Guild guild, @NonNull String name) {
-    JdaCommand command = this.manager.getCommand(guild, name);
-    return command == null ? new UnknownCommand(this.manager, name) : command;
-  }
-
-  /**
-   * Get the result of a command execution.
-   *
-   * @param command the command
-   * @param commandName the name of the command
-   * @param context the context of the command
-   * @return the result of the command execution
-   */
-  @Deprecated
-  private JdaResult getResult(
-      @NonNull JdaCommand command,
-      @Deprecated @NonNull String commandName,
-      CommandContext context) {
-    if (!(command instanceof UnknownCommand)) {
-      return command.execute(context);
-    } else {
-      return Result.forType(ResultType.ERROR)
-          .setDescription(this.messagesProvider.commandNotFound(commandName, context))
-          .build();
-    }
+    return this.adapter
+        .getCommand(guild, name)
+        .orElse(new UnknownCommand(this.manager, name, this.messagesProvider));
   }
 
   /**
@@ -135,7 +117,7 @@ public class CommandListener implements EventListener {
     CommandLineParser parser = CommandLineParser.parse(command.getOptions(), strings);
     if (event.isFromGuild()) {
       return new GuildCommandContext(
-          manager.getJda(),
+          adapter.getJda(),
           parser,
           command,
           event.getAuthor(),
@@ -146,7 +128,7 @@ public class CommandListener implements EventListener {
           event.getMessage());
     } else {
       return new GenericCommandContext(
-          manager.getJda(),
+          adapter.getJda(),
           parser,
           command,
           event.getAuthor(),

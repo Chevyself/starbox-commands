@@ -1,33 +1,24 @@
 package com.github.chevyself.starbox.context;
 
-import com.github.chevyself.starbox.StarboxCommand;
-import com.github.chevyself.starbox.flags.CommandLineParser;
+import com.github.chevyself.starbox.commands.StarboxCommand;
 import com.github.chevyself.starbox.flags.FlagArgument;
 import com.github.chevyself.starbox.flags.StarboxFlag;
-import com.github.chevyself.starbox.messages.StarboxMessagesProvider;
-import com.github.chevyself.starbox.providers.registry.ProvidersRegistry;
-import java.util.Arrays;
-import java.util.Collection;
+import com.github.chevyself.starbox.messages.MessagesProvider;
+import com.github.chevyself.starbox.parsers.CommandLineParser;
+import com.github.chevyself.starbox.registry.ProvidersRegistry;
 import java.util.Optional;
 import lombok.NonNull;
 
 /**
  * The context of the execution of a command. The principal variables that a context requires is the
- * sender and the strings that represent the arguments, obviously, each implementation has a
- * different context but this gives an important idea .
+ * sender and the strings that represent the arguments, which are given by the {@link
+ * #getCommandLineParser()}. Each platform has a different context.
+ *
+ * @param <C> the type of context
+ * @param <T> the type of the command
  */
-public interface StarboxCommandContext {
-
-  /**
-   * Get all the flags that were used in this context.
-   *
-   * @deprecated use {@link #getCommandLineParser()} and {@link CommandLineParser#getFlags()}
-   * @return a collection of flags
-   */
-  @Deprecated
-  default Collection<FlagArgument> getFlags() {
-    return this.getCommandLineParser().getFlags();
-  }
+public interface StarboxCommandContext<
+    C extends StarboxCommandContext<C, T>, T extends StarboxCommand<C, T>> {
 
   /**
    * Get a flag with its alias. This will first attempt to get a {@link FlagArgument} if it is not
@@ -61,11 +52,10 @@ public interface StarboxCommandContext {
   /**
    * Get the command that is going to be executed using this context.
    *
-   * @param <C> the type of context that it accepts
-   * @param <T> the type of the command
    * @return the command
    */
-  <C extends StarboxCommandContext, T extends StarboxCommand<C, T>> T getCommand();
+  @NonNull
+  T getCommand();
 
   /**
    * Get if the command was executed with a flag using the given alias.
@@ -78,19 +68,6 @@ public interface StarboxCommandContext {
   }
 
   /**
-   * Get the joined strings from a certain position.
-   *
-   * @deprecated use {@link CommandLineParser#copyFrom(int)}
-   * @param position the position to get the string from
-   * @return an array of strings, empty if none
-   */
-  @Deprecated
-  @NonNull
-  default String[] getStringsFrom(int position) {
-    return Arrays.copyOfRange(this.getStrings(), position, this.getStrings().length);
-  }
-
-  /**
    * Get the sender of the command.
    *
    * @return the sender of the command
@@ -99,50 +76,13 @@ public interface StarboxCommandContext {
   Object getSender();
 
   /**
-   * a Get the joined strings of the command as a single string.
-   *
-   * @deprecated use {@link CommandLineParser#getArgumentsString()}
-   * @return the joined strings as a String
-   */
-  @Deprecated
-  @NonNull
-  default String getString() {
-    return this.getCommandLineParser().getArgumentsString();
-  }
-
-  /**
-   * Get the joined strings of the command.
-   *
-   * @deprecated use {@link CommandLineParser#getArguments()}
-   * @return the joined strings as an array
-   */
-  @Deprecated
-  @NonNull
-  default String[] getStrings() {
-    return this.getCommandLineParser().getArguments().toArray(new String[0]);
-  }
-
-  /**
    * Get the providers' registry used in this context. This allows to get the arguments of the
    * command.
    *
    * @return the providers registry
    */
   @NonNull
-  ProvidersRegistry<? extends StarboxCommandContext> getProvidersRegistry();
-
-  /**
-   * Get the providers' registry used in this context. This allows to get the arguments of the
-   * command.
-   *
-   * @deprecated use {@link #getProvidersRegistry()}
-   * @return the providers registry
-   */
-  @Deprecated
-  @NonNull
-  default ProvidersRegistry<? extends StarboxCommandContext> getRegistry() {
-    return this.getProvidersRegistry();
-  }
+  ProvidersRegistry<C> getProvidersRegistry();
 
   /**
    * Get the command line parser used in this context.
@@ -158,5 +98,14 @@ public interface StarboxCommandContext {
    * @return the messages' provider used in this context
    */
   @NonNull
-  StarboxMessagesProvider<? extends StarboxCommandContext> getMessagesProvider();
+  MessagesProvider<C> getMessagesProvider();
+
+  /**
+   * Get this context to execute a child command.
+   *
+   * @param subcommand the child command to execute
+   * @return the context to execute the child command
+   */
+  @NonNull
+  C getChildren(@NonNull T subcommand);
 }

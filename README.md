@@ -1,112 +1,151 @@
-Starbox-Commands [![](https://jitpack.io/v/Chevyself/starbox-commands.svg)](https://jitpack.io/#Chevyself/starbox-commands)
+Starbox [![](https://jitpack.io/v/Chevyself/starbox-commands.svg)](https://jitpack.io/#Chevyself/starbox-commands)
 ===
 
-This project is an abstract interface extended for the use of Bukkit, Bungeecord and JDA. It can also be extended to any platform.
+Starbox is a project that provides an abstract interface to extend across different platforms. Currently, it supports the following: Bukkit, Bungee and JDA.
 
-It aims to simplify the process of creating commands and managing commands in Bukkit, Bungeecord and JDA. It also has an interface that can be extended to any platform. You can easily customize commands with middlewares, providers and other managing options. It's easy to write complex commands with minimal effort. 
+The main objective of Starbox is to simplify the process of creating commands and managing commands. With Starbox, You can easily customize commands using middlewares, providers and other managing options. It enables to write complex commands with minimal effort. 
 
-Documentation and Installation
+Starbox utilizes object injection to invoke methods, which rely on providers: `ArgumentProvider` and `ExtraArgumentProvider`. The former requires a `String` input from the command sender. Command execution and result interception can be archived using a `Middleware`. Both providers and middlewares are registered in their respective registries: `ProvidersRegistry`and `MiddlewaresRegistry`. For each platform, Starbox provides a set of middlewares and providers which can be enabled or disabled using the `CommandManagerBuilder`.
+
+If you prefer an alternative approach to reflection, you can implement the interface provided by each module and register it using `CommandManager#regiser(StarboxCommand)`.
+
+ ---
+
+Contents
 --------
 
-* Check latest JavaDoc in [Jitpack](https://jitpack.io/com/github/chevyself/starbox-commands/master-SNAPSHOT/javadoc/)
-* You can find tutorials in the [Wiki](https://github.com/Chevyself/Starbox-commands/wiki).
-* Installation steps can be found in [Jitpack](https://jitpack.io/com/github/chevyself/starbox-commands/master-SNAPSHOT/javadoc/) 
+1. [Installation](#installation)
+   1. [Maven](#maven)
+   2. [Gradle](#gradle)
+2. [Documentation](#documentation)
+   1. [JavaDoc](#javadoc)
+   2. [Tutorials](#tutorials)
+3. [Getting Started](#getting-started)
+4. [Platforms](#platforms)
+5. [Contribution](#contribution)
+6. [License](#license)
 
 ---
 
-Creating the Command Manager
+Installation
 --------
 
-Each module has implemented `CommandManager`, thus, making the constructor of the class different in each. While in Bukkit and Bungee you need the `plugin`, in JDA you need the `JDA` object. The manager depends on two classes: the [ProvidersRegistry](./wiki/Providers-Registry) which handles argument providers and the [MessagesProvider](./wiki/Messages-Provider) which provides messages.
+## Maven
 
-Bukkit and Bungee example:
-```java
-public class Main extends JavaPlugin {
-    private CommandManager commandManager;
-    
-    @Override
-    public void onEnable() {
-        ProvidersRegistry<> providersRegistry = ...;
-        MessagesProvider messagesProvider = ...;
-        this.commandManager = new CommandManager(this, providersRegistry, messagesProvider);
-    }
+Add the repository to your `pom.xml`:
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+Then, add the dependency:
+
+```xml
+<dependency>
+    <groupId>com.github.chevyself.starbox-commands</groupId>
+    <artifactId>MODULE</artifactId>
+    <version>VERSION</version>
+</dependency>
+```
+
+## Gradle
+
+Add the repository to your `build.gradle`:
+
+```groovy
+repositories {
+    maven { url 'https://jitpack.io' }
 }
 ```
 
-The JDA module also depends on the `ListenerOptions` which handles commands pre-execution, any kind of error, prefixes and the result of slash commands. You could use the default behaviour using `GenericListenerOptions` or create your own class extending `ListenerOptions`.
+Then, add the dependency:
 
-JDA example:
-```java
-public class Main {
-    public static void main(String[] args) {
-        ProvidersRegistry<> providersRegistry = ...;
-        MessagesProvider messagesProvider = ...;
-        JDA jda = ...;
-        ListenerOptions listenerOptions = ...;
-        CommandManager commandManager = new CommandManager(providersRegistry, messagesProvider, jda, listenerOptions);
-    }
+```groovy
+dependencies {
+    implementation 'com.github.chevyself.starbox-commands:MODULE:VERSION'
 }
 ```
 
-### Middlewares
-
-Once you got your manager, you can add [middlewares](./wiki/Middlewares). These will change how the command is executed, for example, you can add a middleware to check if the sender has a permission or if the command is executed in a specific channel. You can also handle the result, for example, you can add a middleware to send a message to the sender if the command was executed successfully.
-
-Example:
-```java
-CommandManager manager = ...;
-// Adds a global middleware
-manager.addGlobalMiddleware(middleware);
-// Adds many global middlewares
-manager.addGlobalMiddlewares(middleware1, middleware2, middleware3);
-// Adds a middleware
-manager.addMiddleware(middleware);
-// Adds many middlewares
-manager.addMiddlewares(middleware1, middleware2, middleware3);
-```
-
-### Registering commands
-
-Once you got your manager ready, you can register your commands. You can either implement the command class:
-
-* Bukkit -> StarboxBukkitCommand
-* Bungee -> BungeeCommand
-* JDA -> JdaCommand
-
-Or [parse commands using reflection](./wiki/Reflection-Commands).
-
-Example:
-```java
-List<AnnotatedCommands> commands = commandManager.parseCommands(new MyCommand());
-```
-
-When you have your commands ready, you can register them:
-
-```java
-// Registers a single command
-commandManager.register(command);
-// Registers many commands
-commandManager.registerAll(command1, command2, command3);
-// Register many commands in a collection
-List<? extends StarboxCommand> commands = ...;
-commandManager.registerAll(commands);
-```
-
-## Close the manager
-
-Managers have a `close()` method which will close the manager and unregister all commands.
-
-Example:
-```java
-manager.close();
-```
+> Replace `MODULE` with the module you want to use. For example, `bukkit`, `bungee`, `core`, `jda`.
+> 
+> Replace `VERSION` with the version you want to use. For example, `master-SNAPSHOT` to use the latest commit.
+> 
+> Check the [Jitpack](https://jitpack.io/#Chevyself/starbox) page for more information.
 
 ---
 
-Dependencies
+Documentation
 --------
 
-You are adviced to view the platforms used in the framework.
+## JavaDoc
+
+Check latest JavaDoc in [Jitpack](https://jitpack.io/com/github/chevyself/starbox-commands/master-SNAPSHOT/javadoc/)
+
+## Tutorials
+
+You can find tutorials in the [Wiki](https://github.com/Chevyself/Starbox-commands/wiki).
+
+Some good tutorials to start with:
+1. [Creating a command](https://github.com/Chevyself/starbox-commands/wiki/Creating-Commands)
+2. [Creating a middleware](https://github.com/Chevyself/starbox-commands/wiki/Creating-Middlewares)
+3. [Creating a provider](https://github.com/Chevyself/starbox-commands/wiki/Creating-Providers)
+
+---
+
+Getting Started
+--------
+
+1. To get started, first select the platform you want to use and create the `Adapter`:
+
+* Bukkit: `BukkitAdapter`
+* Bungee: `BungeeAdapter`
+* JDA: `JDAAdapter`
+
+For this example we will use `BukkitAdapter`:
+
+```java
+BukkitAdapter adapter = new BukkitAdapter(plugin, true);
+```
+
+> Get more in depth information about the `Adapter` in the [Wiki](./wiki/Adapters).
+
+2. Then, create the `CommandManager` using the `CommandManagerBuilder`:
+
+```java
+CommandManager<CommandContext, BukkitCommand> commandManager = new CommandManagerBuilder<>(adapter)
+    .build();
+```
+
+> Get more in depth information about the `CommandManagerBuilder` in the [Wiki](./wiki/Command_Manager_Builder).
+
+Finally, register the commands:
+
+3. Create and register commands!
+
+Using reflection:
+```java
+commandManager.parseAndRegister(new MyCommand());
+```
+
+Using the `BukkitCommand` interface:
+
+```java
+commandManager.register(new MyCommand());
+```
+
+> Get more in depth information about the `Commands` in the [Wiki](./wiki/Commands).
+
+---
+
+Platforms
+--------
+
+You are advised to view the platforms used in the framework.
 
 * [Spigot](https://hub.spigotmc.org/)
 * [BungeeCord](https://github.com/SpigotMC/BungeeCord)
@@ -114,14 +153,9 @@ You are adviced to view the platforms used in the framework.
 
 Contribution
 --------
-To contribute, simply, branch out of the `master` branch and create a pull request. If you want to add a new feature, please, create an issue first.
+To contribute, simply, branch out of the `master` and create a pull request. If you want to add a new feature, please, create an issue first.
 
 Deprecated content will be removed in the next major release.
-
-Subject to change:
-* [ ] The `@Command` annotation of each module may join in a single one.
-* [ ] The `CommandManager` of each module may join in a single one.
-* [ ] An `Adapter` interface may be introduced to handle the differences between each module.
 
 All the changes above are in favor to reduce duplicated code and make it easier to maintain.
 

@@ -1,10 +1,10 @@
 package com.github.chevyself.starbox.system.context;
 
 import com.github.chevyself.starbox.context.StarboxCommandContext;
-import com.github.chevyself.starbox.flags.CommandLineParser;
-import com.github.chevyself.starbox.providers.registry.ProvidersRegistry;
-import com.github.chevyself.starbox.system.MessagesProvider;
-import com.github.chevyself.starbox.system.SystemCommand;
+import com.github.chevyself.starbox.messages.MessagesProvider;
+import com.github.chevyself.starbox.parsers.CommandLineParser;
+import com.github.chevyself.starbox.registry.ProvidersRegistry;
+import com.github.chevyself.starbox.system.commands.SystemCommand;
 import com.github.chevyself.starbox.system.context.sender.CommandSender;
 import com.github.chevyself.starbox.system.context.sender.ConsoleCommandSender;
 import lombok.Getter;
@@ -15,13 +15,14 @@ import lombok.NonNull;
  * {@link StarboxCommandContext} the {@link #sender} is the static instance of {@link
  * ConsoleCommandSender#INSTANCE}
  */
-public class CommandContext implements StarboxCommandContext {
+@Getter
+public class CommandContext implements StarboxCommandContext<CommandContext, SystemCommand> {
 
-  @NonNull @Getter private final CommandLineParser commandLineParser;
-  @NonNull @Getter private final SystemCommand command;
-  @NonNull @Getter private final CommandSender sender;
-  @NonNull @Getter private final ProvidersRegistry<CommandContext> providersRegistry;
-  @NonNull @Getter private final MessagesProvider messagesProvider;
+  @NonNull private final CommandLineParser commandLineParser;
+  @NonNull private final SystemCommand command;
+  @NonNull private final CommandSender sender;
+  @NonNull private final ProvidersRegistry<CommandContext> providersRegistry;
+  @NonNull private final MessagesProvider<CommandContext> messagesProvider;
 
   /**
    * Create the command context.
@@ -38,7 +39,7 @@ public class CommandContext implements StarboxCommandContext {
       @NonNull SystemCommand command,
       @NonNull CommandSender sender,
       @NonNull ProvidersRegistry<CommandContext> providersRegistry,
-      @NonNull MessagesProvider messagesProvider) {
+      @NonNull MessagesProvider<CommandContext> messagesProvider) {
     this.command = command;
     this.sender = sender;
     this.commandLineParser = commandLineParser;
@@ -47,7 +48,12 @@ public class CommandContext implements StarboxCommandContext {
   }
 
   @Override
-  public @NonNull ProvidersRegistry<CommandContext> getRegistry() {
-    return this.getProvidersRegistry();
+  public @NonNull CommandContext getChildren(@NonNull SystemCommand subcommand) {
+    return new CommandContext(
+        this.commandLineParser.copyFrom(1, subcommand.getOptions()),
+        subcommand,
+        this.sender,
+        this.providersRegistry,
+        this.messagesProvider);
   }
 }

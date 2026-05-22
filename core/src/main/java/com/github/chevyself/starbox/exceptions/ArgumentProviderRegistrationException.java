@@ -1,11 +1,12 @@
 package com.github.chevyself.starbox.exceptions;
 
+import com.github.chevyself.starbox.providers.StarboxContextualProvider;
+import com.github.chevyself.starbox.registry.ProvidersRegistry;
 import lombok.NonNull;
 
 /**
- * Thrown when a {@link com.github.chevyself.starbox.providers.type.StarboxContextualProvider} could
- * not be registered in the {@link
- * com.github.chevyself.starbox.providers.registry.ProvidersRegistry}.
+ * Thrown when a {@link StarboxContextualProvider} could not be registered in the {@link
+ * ProvidersRegistry}.
  */
 public class ArgumentProviderRegistrationException extends CommandRegistrationException {
 

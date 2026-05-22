@@ -1,176 +1,128 @@
 package com.github.chevyself.starbox.bukkit.messages;
 
-import com.github.chevyself.starbox.StarboxCommand;
-import com.github.chevyself.starbox.bukkit.StarboxBukkitCommand;
+import com.github.chevyself.starbox.bukkit.commands.BukkitCommand;
 import com.github.chevyself.starbox.bukkit.context.CommandContext;
-import com.github.chevyself.starbox.bukkit.utils.BukkitUtils;
-import com.github.chevyself.starbox.time.TimeUtil;
-import com.github.chevyself.starbox.util.Strings;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
+import com.github.chevyself.starbox.messages.MessagesProvider;
 import lombok.NonNull;
-import org.bukkit.command.Command;
 import org.bukkit.plugin.Plugin;
 
-/** The default {@link MessagesProvider} for Bukkit. */
-public class BukkitMessagesProvider implements MessagesProvider {
+/** Provides the messages for bukkit responses. */
+public interface BukkitMessagesProvider extends MessagesProvider<CommandContext> {
 
-  @NonNull public static final String ERROR_PREFIX = "&e&o⚠ &r";
-
-  @Override
-  public @NonNull String invalidLong(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BukkitMessagesProvider.ERROR_PREFIX + "&4&o{0} &c&ois not a valid long", string);
-  }
-
-  @Override
-  public @NonNull String invalidInteger(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BukkitMessagesProvider.ERROR_PREFIX + "&4&o{0} &c&ois not a valid integer", string);
-  }
-
-  @Override
-  public @NonNull String invalidDouble(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BukkitMessagesProvider.ERROR_PREFIX + "&4&o{0} &c&ois not a valid double", string);
-  }
-
-  @Override
-  public @NonNull String invalidBoolean(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BukkitMessagesProvider.ERROR_PREFIX + "&4&o{0} &c&ois not a valid boolean", string);
-  }
-
-  @Override
-  public @NonNull String invalidDuration(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BukkitMessagesProvider.ERROR_PREFIX + "&4&o{0} &c&ois not valid time", string);
-  }
-
-  @Override
-  public @NonNull String missingArgument(
-      @NonNull String name,
-      @NonNull String description,
-      int position,
-      @NonNull CommandContext context) {
-    return BukkitMessagesProvider.ERROR_PREFIX
-        + "&c&oYou are missing the argument &4&o"
-        + name
-        + "&c&o at position &4&o"
-        + position
-        + "&c&o: &7&o"
-        + description;
-  }
-
-  @Override
-  public @NonNull String cooldown(@NonNull CommandContext context, @NonNull Duration timeLeft) {
-    return BukkitMessagesProvider.ERROR_PREFIX
-        + "&c&oYou will be allowed to run this command in &4&o"
-        + TimeUtil.toString(timeLeft);
-  }
-
-  @Override
-  public @NonNull String commandHelp(
-      @NonNull StarboxCommand<CommandContext, ?> command, CommandContext context) {
-    if (command instanceof StarboxBukkitCommand) {
-      StarboxBukkitCommand bukkitCommand = (StarboxBukkitCommand) command;
-      return "&c"
-          + StarboxCommand.genericHelp(
-              bukkitCommand, bukkitCommand.getChildren(), Command::getName);
-    }
-    return "&cUnknown command";
-  }
-
+  /**
+   * The message sent when a player is not found.
+   *
+   * @param string the input string querying for a player name
+   * @param context the context of the command
+   * @return the message to send
+   */
   @NonNull
-  @Override
-  public String invalidPlayer(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BukkitMessagesProvider.ERROR_PREFIX + "&4&o{0} &c&ois not a valid player", string);
-  }
+  String invalidPlayer(@NonNull String string, @NonNull CommandContext context);
 
+  /**
+   * The message sent when a command is executed by another entity rather than a player.
+   *
+   * @param context the context of the command
+   * @return the message to send
+   */
   @NonNull
-  @Override
-  public String playersOnly(@NonNull CommandContext context) {
-    return BukkitMessagesProvider.ERROR_PREFIX + "&c&oConsole cannot use this command";
-  }
+  String onlyPlayers(@NonNull CommandContext context);
 
+  /**
+   * The message sent when the user that executed the command is not allowed to use it.
+   *
+   * @param context the context of the command
+   * @return the message to send
+   */
   @NonNull
-  @Override
-  public String notAllowed(@NonNull CommandContext context) {
-    return BukkitMessagesProvider.ERROR_PREFIX + "&c&oYou are not allowed to use this command";
-  }
+  String notAllowed(@NonNull CommandContext context);
 
-  @Override
-  public @NonNull String helpTopicShort(@NonNull Plugin plugin) {
-    return "Get help for " + plugin.getName();
-  }
+  /**
+   * The short message of the help topic in the plugin.
+   *
+   * @param plugin the plugin requesting the short message for its help topic
+   * @return the short message of the help topic in the plugin
+   */
+  @NonNull
+  String helpTopicShort(@NonNull Plugin plugin);
 
-  @Override
-  public @NonNull String helpTopicFull(
-      @NonNull String shortText, @NonNull String commands, @NonNull Plugin plugin) {
-    String description =
-        plugin.getDescription().getDescription() == null
-            ? "No description given"
-            : plugin.getDescription().getDescription();
-    return BukkitUtils.format(
-        "&6Version: &f{0} \n &6Description: &f{1} \n &7Commands (use /help <command>): {2}",
-        plugin.getDescription().getVersion(), description, commands);
-  }
+  /**
+   * A full message of the help topic in the plugin.
+   *
+   * @param shortText the plugin requesting the message for its help topic
+   * @param commands the name of every command to append in the help topic
+   * @param plugin the plugin that needs the full message for the help topic
+   * @return the full message for the help topic
+   */
+  @NonNull
+  String helpTopicFull(@NonNull String shortText, @NonNull String commands, @NonNull Plugin plugin);
 
-  @Override
-  public @NonNull String helpTopicCommand(@NonNull StarboxBukkitCommand command) {
-    List<String> aliases = new ArrayList<>(command.getAliases());
-    aliases.add(command.getName());
-    return BukkitUtils.format(
-        "\n&6/{0}: &f{1}", Strings.buildUsageAliases(aliases), command.getDescription());
-  }
+  /**
+   * Get how a command should be appended in a help topic.
+   *
+   * @param command the command that should be appended in the plugin help topic
+   * @return the string that should be appended to give information about a command in the help
+   *     topic
+   */
+  @NonNull
+  String helpTopicCommand(@NonNull BukkitCommand command);
 
-  @Override
-  public @NonNull String commandShortText(@NonNull StarboxBukkitCommand command) {
-    return command.getDescription();
-  }
+  /**
+   * The short text for a command help topic.
+   *
+   * @param command the command that is being built the help topic to
+   * @return the short text
+   */
+  @NonNull
+  String commandShortText(@NonNull BukkitCommand command);
 
-  @Override
-  public @NonNull String commandName(@NonNull StarboxBukkitCommand command, String parentName) {
-    return (parentName == null
-        ? "/" + command.getName()
-        : (parentName.startsWith("/") ? "" : "/") + parentName + "." + command.getName());
-  }
+  /**
+   * The name of the command in the help topic.
+   *
+   * @param command the command that is being built the help topic to
+   * @param parentName the name of the parent of the command which can be null to be appended to
+   *     differentiate from other commands
+   * @return the command
+   */
+  @NonNull
+  String commandName(BukkitCommand command, String parentName);
 
-  @Override
-  public @NonNull String commandFullText(
-      @NonNull StarboxBukkitCommand command, @NonNull String builtChildren) {
-    StringBuilder builder =
-        new StringBuilder()
-            .append("&6Description: &f")
-            .append(command.getDescription())
-            .append("\n&6Usage: &f")
-            .append(command.getUsage());
-    if (command.getPermission() != null) {
-      builder.append("\n&6Permission: &f").append(command.getPermission());
-    }
-    if (!command.getChildren().isEmpty()) {
-      builder.append("\n&6Children: &r").append(builtChildren);
-    }
-    return BukkitUtils.format(builder.toString());
-  }
+  /**
+   * Get the full text of a help topic for a parent command.
+   *
+   * @param command the parent command that is being built the help topic to
+   * @param buildChildren the children command of the parent
+   * @return the full text of the help topic
+   */
+  @NonNull
+  String commandFullText(@NonNull BukkitCommand command, @NonNull String buildChildren);
 
-  @Override
-  public @NonNull String childCommand(
-      @NonNull StarboxBukkitCommand command, @NonNull StarboxBukkitCommand parent) {
-    return BukkitUtils.format(
-        "\n&6/{0} {1}: &f{2}", parent.getName(), command.getName(), command.getDescription());
-  }
+  /**
+   * A simple description for a child command for its parents help topic.
+   *
+   * @param command the command that requires the description for its parent
+   * @param parent the parent of the command
+   * @return the child command description
+   */
+  @NonNull
+  String childCommand(@NonNull BukkitCommand command, @NonNull BukkitCommand parent);
 
-  @Override
-  public @NonNull String invalidMaterialEmpty(@NonNull CommandContext context) {
-    return BukkitMessagesProvider.ERROR_PREFIX + "&c&oMaterial cannot be empty";
-  }
+  /**
+   * The message to tell the users that materials have a name, and it cannot be empty.
+   *
+   * @param context the context of the command
+   * @return the message to tell the user
+   */
+  @NonNull
+  String invalidMaterialEmpty(@NonNull CommandContext context);
 
-  @Override
-  public @NonNull String invalidMaterial(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BukkitMessagesProvider.ERROR_PREFIX + "&4&o{0} &c&ois not a valid material", string);
-  }
+  /**
+   * The message to tell the users that the material is not found.
+   *
+   * @param string the name of the material that the user queried
+   * @param context the context of the command
+   * @return the message to tell the user
+   */
+  @NonNull
+  String invalidMaterial(@NonNull String string, @NonNull CommandContext context);
 }

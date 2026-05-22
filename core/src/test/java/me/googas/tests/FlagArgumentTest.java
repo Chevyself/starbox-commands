@@ -1,7 +1,7 @@
 package me.googas.tests;
 
-import com.github.chevyself.starbox.flags.CommandLineParser;
 import com.github.chevyself.starbox.flags.Option;
+import com.github.chevyself.starbox.parsers.CommandLineParser;
 import java.util.Arrays;
 import java.util.List;
 

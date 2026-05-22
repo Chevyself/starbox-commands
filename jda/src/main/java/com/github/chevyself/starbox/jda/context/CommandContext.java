@@ -1,9 +1,9 @@
 package com.github.chevyself.starbox.jda.context;
 
 import com.github.chevyself.starbox.context.StarboxCommandContext;
-import com.github.chevyself.starbox.jda.JdaCommand;
-import com.github.chevyself.starbox.jda.messages.MessagesProvider;
-import com.github.chevyself.starbox.providers.registry.ProvidersRegistry;
+import com.github.chevyself.starbox.jda.commands.JdaCommand;
+import com.github.chevyself.starbox.messages.MessagesProvider;
+import com.github.chevyself.starbox.registry.ProvidersRegistry;
 import java.util.Optional;
 import lombok.NonNull;
 import net.dv8tion.jda.api.JDA;
@@ -12,10 +12,10 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
 /** This context is used for every command {@link User being the sender}. */
-public interface CommandContext extends StarboxCommandContext {
+public interface CommandContext extends StarboxCommandContext<CommandContext, JdaCommand> {
 
-  @SuppressWarnings("unchecked")
   @Override
+  @NonNull
   JdaCommand getCommand();
 
   /**
@@ -54,19 +54,9 @@ public interface CommandContext extends StarboxCommandContext {
 
   @Override
   @NonNull
-  MessagesProvider getMessagesProvider();
-
-  /**
-   * Create a children context from this.
-   *
-   * @param command the command for which the context is created
-   * @return the new context
-   */
-  @NonNull
-  CommandContext getChildren(@NonNull JdaCommand command);
+  MessagesProvider<CommandContext> getMessagesProvider();
 
   @Override
-  default @NonNull ProvidersRegistry<CommandContext> getRegistry() {
-    return this.getProvidersRegistry();
-  }
+  @NonNull
+  CommandContext getChildren(@NonNull JdaCommand subcommand);
 }

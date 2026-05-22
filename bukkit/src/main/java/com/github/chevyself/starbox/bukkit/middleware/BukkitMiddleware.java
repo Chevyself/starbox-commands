@@ -1,15 +1,7 @@
 package com.github.chevyself.starbox.bukkit.middleware;
 
-import com.github.chevyself.starbox.Middleware;
 import com.github.chevyself.starbox.bukkit.context.CommandContext;
-import com.github.chevyself.starbox.bukkit.result.BukkitResult;
-import java.util.Optional;
-import lombok.NonNull;
+import com.github.chevyself.starbox.middleware.Middleware;
 
 /** Middleware implementation for the 'Bukkit' module. */
-public interface BukkitMiddleware extends Middleware<CommandContext> {
-
-  @Override
-  @NonNull
-  Optional<BukkitResult> next(@NonNull CommandContext context);
-}
+public interface BukkitMiddleware extends Middleware<CommandContext> {}

@@ -1,10 +1,9 @@
 package com.github.chevyself.starbox.jda.context;
 
-import com.github.chevyself.starbox.flags.CommandLineParser;
-import com.github.chevyself.starbox.jda.CommandManager;
-import com.github.chevyself.starbox.jda.JdaCommand;
-import com.github.chevyself.starbox.jda.messages.MessagesProvider;
-import com.github.chevyself.starbox.providers.registry.ProvidersRegistry;
+import com.github.chevyself.starbox.jda.commands.JdaCommand;
+import com.github.chevyself.starbox.messages.MessagesProvider;
+import com.github.chevyself.starbox.parsers.CommandLineParser;
+import com.github.chevyself.starbox.registry.ProvidersRegistry;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.NonNull;
@@ -22,7 +21,7 @@ public class GenericCommandContext implements CommandContext {
   @NonNull @Getter protected final JdaCommand command;
   @NonNull @Getter protected final User sender;
   @NonNull @Getter protected final ProvidersRegistry<CommandContext> providersRegistry;
-  @NonNull @Getter protected final MessagesProvider messagesProvider;
+  @NonNull @Getter protected final MessagesProvider<CommandContext> messagesProvider;
   @NonNull @Getter protected final MessageReceivedEvent event;
   @NonNull protected final MessageChannel channel;
   protected final Message message;
@@ -30,10 +29,8 @@ public class GenericCommandContext implements CommandContext {
   /**
    * Create an instance.
    *
-   * @param string the input strings joined
-   * @param args the strings send in the command
-   * @param flags the flags in the input of the command
-   * @param jda the jda instance in which the {@link CommandManager} is registered
+   * @param jda the jda instance in which the {@link com.github.chevyself.starbox.jda.JdaAdapter} is
+   *     registered
    * @param commandLineParser the parser that parsed the command from the command line
    * @param command the command for which this context was created
    * @param sender the sender of the command
@@ -49,7 +46,7 @@ public class GenericCommandContext implements CommandContext {
       @NonNull JdaCommand command,
       @NonNull User sender,
       @NonNull ProvidersRegistry<CommandContext> providersRegistry,
-      @NonNull MessagesProvider messagesProvider,
+      @NonNull MessagesProvider<CommandContext> messagesProvider,
       @NonNull MessageReceivedEvent event,
       @NonNull MessageChannel channel,
       Message message) {

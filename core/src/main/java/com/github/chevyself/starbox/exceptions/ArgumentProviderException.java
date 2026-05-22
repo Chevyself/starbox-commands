@@ -1,7 +1,7 @@
 package com.github.chevyself.starbox.exceptions;
 
 import com.github.chevyself.starbox.exceptions.type.StarboxException;
-import com.github.chevyself.starbox.providers.type.StarboxArgumentProvider;
+import com.github.chevyself.starbox.providers.StarboxArgumentProvider;
 import lombok.NonNull;
 
 /**

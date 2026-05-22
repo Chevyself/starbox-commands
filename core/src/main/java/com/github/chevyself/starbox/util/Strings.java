@@ -1,5 +1,9 @@
 package com.github.chevyself.starbox.util;
 
+import com.github.chevyself.starbox.arguments.Argument;
+import com.github.chevyself.starbox.commands.ReflectCommand;
+import com.github.chevyself.starbox.commands.StarboxCommand;
+import com.github.chevyself.starbox.flags.Option;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import lombok.NonNull;
 
 /** Static utilities for {@link String}. */
@@ -16,7 +21,7 @@ public final class Strings {
   /** A string only containing uppercase letters. */
   @NonNull public static final String UPPERCASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   /** A string only containing lowercase letters. */
-  @NonNull public static final String LOWERCASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
+  @NonNull public static final String LOWERCASE_LETTERS = Strings.UPPERCASE_LETTERS.toLowerCase();
   /** A char array containing both uppercase and lowercase letters. */
   public static final char[] LETTERS =
       (Strings.UPPERCASE_LETTERS + Strings.LOWERCASE_LETTERS).toCharArray();
@@ -24,22 +29,24 @@ public final class Strings {
   public static final char[] UPPERCASE = Strings.UPPERCASE_LETTERS.toCharArray();
   /** A char array containing lowercase letters. */
   public static final char[] LOWERCASE = Strings.LOWERCASE_LETTERS.toCharArray();
+  /** Null representation. */
+  @NonNull public static final String NULL = "null";
 
   /**
    * This method is made to save resources from {@link #format(String, Map)}, {@link #format(String,
    * Object...)} to not go in a loop. In case that the message is null it will just give a string
-   * with the characters "Null"
+   * with the characters "null"
    *
    * @param message the message to format
-   * @return "Null" if the message is null else the message
+   * @return {@link #NULL} if the message is null else the message
    */
   @NonNull
   public static String format(String message) {
-    return message == null ? "Null" : message;
+    return message == null ? Strings.NULL : message;
   }
 
   /**
-   * Build a message which has placeholders in the next fashion:
+   * Build a message which has placeholders as the following:
    *
    * <p>"This message has a {0}"
    *
@@ -56,18 +63,18 @@ public final class Strings {
     if (message != null) {
       for (int i = 0; i < strings.length; i++) {
         message =
-            message.replace("{" + i + "}", strings[i] == null ? "Null" : strings[i].toString());
+            message.replace(
+                "{" + i + "}", strings[i] == null ? Strings.NULL : strings[i].toString());
       }
     } else {
-      message = "Null";
+      message = Strings.NULL;
     }
     return message;
   }
 
   /**
-   * Build a message using more readable placeholders. Instead of using a method such as {@link
-   * #format(String, Object...)} this uses a map with the placeholder and the given object to
-   * replace it:
+   * Build a message using more readable placeholders. This uses a map with the placeholder and the
+   * given object to replace it:
    *
    * <p>"This message has a %placeholder%"
    *
@@ -82,38 +89,17 @@ public final class Strings {
   @NonNull
   public static String format(String message, @NonNull Map<String, String> placeholders) {
     if (message == null) {
-      return "Null";
+      return Strings.NULL;
     }
     AtomicReference<String> atomicMessage = new AtomicReference<>(message);
     for (String placeholder : placeholders.keySet()) {
       String value = placeholders.get(placeholder);
-      if (value != null) {
-        atomicMessage.set(atomicMessage.get().replace("%" + placeholder + "%", value));
-      } else {
-        atomicMessage.set(atomicMessage.get().replace("%" + placeholder + "%", "null"));
-      }
+      atomicMessage.set(
+          atomicMessage
+              .get()
+              .replace("%" + placeholder + "%", value == null ? Strings.NULL : value));
     }
     return atomicMessage.get();
-  }
-
-  /**
-   * Build a {@link String} using an array of those. If you have the array: ["Hello", "world"] the
-   * resulting string will be: "Hello world"
-   *
-   * @param strings the array strings to build
-   * @return the built string using the array
-   */
-  @NonNull
-  public static String join(@NonNull String[] strings) {
-    StringBuilder builder = new StringBuilder();
-
-    for (String string : strings) {
-      builder.append(string).append(" ");
-    }
-    if (builder.length() >= 1) {
-      builder.deleteCharAt(builder.length() - 1);
-    }
-    return builder.toString();
   }
 
   /**
@@ -199,7 +185,8 @@ public final class Strings {
   }
 
   /**
-   * Get the similarity between two string.
+   * Get the similarity between two string. 1f being that the two strings are the same and 0f being
+   * that they are completely different.
    *
    * @param longer the first string
    * @param shorter the second string
@@ -207,8 +194,8 @@ public final class Strings {
    *     strings are the same
    */
   public static float similarity(@NonNull String longer, @NonNull String shorter) {
-    String temp = longer;
     if (longer.length() < shorter.length()) {
+      String temp = longer;
       longer = shorter;
       shorter = temp;
     }
@@ -233,7 +220,7 @@ public final class Strings {
   }
 
   /**
-   * Make a pretty strings from a {@link Collection}. This will check if the collection is empty if
+   * Make a pretty strings from a {@link Collection}. This will check if the collection is empty, if
    * it is the case, the parameter empty will be returned else this will simply {@link
    * Object#toString()} the collection and replace the characters '[]' to nothing
    *
@@ -329,93 +316,13 @@ public final class Strings {
   }
 
   /**
-   * Groups an iteration of strings. Grouping means that it will check for quotation marks, the
-   * strings that are inside those will be grouped as their own. From an array as:
+   * Check the edit distance of two strings. This uses the Wagner-Fischer algorithm.
    *
-   * <p>["Hi!", "\"How", "is", "it", "going?\"", "Good"]
-   *
-   * <p>The groups will be:
-   *
-   * <p>["Hi!", "How is it going?", "Good"]
-   *
-   * @param strings the strings to group
-   * @return the list of grouped strings
+   * @param longer the first string
+   * @param shorter the second string
+   * @return the edit distance between the two strings
    */
-  @NonNull
-  public static List<JoinedString> group(@NonNull Iterable<String> strings) {
-    List<JoinedString> group = new ArrayList<>();
-    boolean building = false;
-    StringBuilder builder = new StringBuilder();
-    int index = 0;
-    for (String string : strings) {
-      String toAppend = null;
-      if (!building && Strings.isStart(string)) {
-        building = true;
-        builder.append(string).append(" ");
-      } else if (building && string.endsWith("\"")) {
-        building = false;
-        builder.append(string);
-        index++;
-        toAppend = builder.toString();
-        builder.setLength(0);
-      } else if (building) {
-        builder.append(string).append(" ");
-        index++;
-      } else {
-        toAppend = string;
-      }
-      if (toAppend != null) {
-        group.add(new JoinedString(Strings.removeQuotations(toAppend), index));
-        index = 0;
-      }
-    }
-    if (building) {
-      group.add(new JoinedString(builder.toString(), index));
-    }
-    return group;
-  }
-
-  /**
-   * Groups an array of strings.
-   *
-   * @see #group(Iterable)
-   * @param strings the strings to group
-   * @return the list of grouped strings
-   */
-  @NonNull
-  public static List<JoinedString> group(@NonNull String... strings) {
-    return Strings.group(Arrays.asList(strings));
-  }
-
-  /**
-   * Removes the starting and ending quotation marks from a string.
-   *
-   * <p>From: "Hello how are you" To: Hello how are you
-   *
-   * @param string the string to remove the quotation marks
-   * @return the string
-   */
-  @NonNull
-  public static String removeQuotations(@NonNull String string) {
-    return (string.length() > 1 && string.startsWith("\"") && string.endsWith("\""))
-        ? string.substring(1, string.length() - 1)
-        : string;
-  }
-
-  /**
-   * Check if a string starts with quotation marks.
-   *
-   * @param string the string to check
-   * @return true if the string starts with quotation marks and does not end with those. This
-   *     ignores if the string has only one character: "\""
-   */
-  public static boolean isStart(@NonNull String string) {
-    return string.startsWith("\"") && (!string.endsWith("\"") || string.length() == 1);
-  }
-
   private static int editDistance(String longer, String shorter) {
-    longer = longer.toLowerCase();
-    shorter = shorter.toLowerCase();
     int[] costs = new int[shorter.length() + 1];
     for (int i = 0; i <= longer.length(); i++) {
       int lastValue = i;
@@ -438,5 +345,90 @@ public final class Strings {
       }
     }
     return costs[shorter.length()];
+  }
+
+  /**
+   * Generates the usage of the command. Commands don't require a name, so, the base of the usage is
+   * just the flags and arguments in case it is a {@link ReflectCommand}.
+   *
+   * @see Option#generateUsage(Collection)
+   * @see Argument#generateUsage(List)
+   * @param command the command to generate the help
+   * @return the usage of the command
+   */
+  @NonNull
+  public static String generateUsage(StarboxCommand<?, ?> command) {
+    StringBuilder builder = new StringBuilder();
+    builder.append(Option.generateUsage(command.getOptions()));
+    if (command instanceof ReflectCommand) {
+      ReflectCommand<?, ?> reflectCommand = (ReflectCommand<?, ?>) command;
+      if (!reflectCommand.getArguments().isEmpty()) {
+        builder.append(Argument.generateUsage(reflectCommand.getArguments()));
+      }
+    }
+    return builder.toString();
+  }
+
+  /**
+   * Get help for the command. This will generate a help message using {@link
+   * #generateUsage(StarboxCommand)}
+   *
+   * @param command the command to generate the help
+   * @param children the children of the command
+   * @return the help message
+   */
+  public static String genericHelp(
+      @NonNull StarboxCommand<?, ?> command,
+      @NonNull Collection<? extends StarboxCommand<?, ?>> children) {
+    StringBuilder builder = new StringBuilder();
+    builder
+        .append("usage: ")
+        .append(command.getName())
+        .append(" ")
+        .append(Strings.generateUsage(command));
+    if (!children.isEmpty()) {
+      builder.append("\nSubcommands:");
+      for (StarboxCommand<?, ?> child : children) {
+        builder
+            .append("\n + ")
+            .append(child.getName())
+            .append(" ")
+            .append(Strings.generateUsage(child));
+      }
+    }
+    return builder.toString();
+  }
+
+  /**
+   * Get help for the command. This will generate a help message using {@link
+   * #generateUsage(StarboxCommand)}
+   *
+   * @param command the command to generate the help
+   * @param children the children of the command
+   * @param nameSupplier the function that will supply the name of the command
+   * @return the help message
+   * @param <T> the type of command
+   */
+  public static <T extends StarboxCommand<?, ?>> String genericHelp(
+      @NonNull T command,
+      @NonNull Collection<T> children,
+      @NonNull Function<T, String> nameSupplier) {
+    StringBuilder builder = new StringBuilder();
+    builder
+        .append("usage: ")
+        .append(nameSupplier.apply(command))
+        .append(" ")
+        .append(Strings.generateUsage(command));
+    if (!children.isEmpty()) {
+      builder.append("\nSubcommands:");
+      for (T child : children) {
+        builder
+            .append("\n + ")
+            .append(nameSupplier.apply(child))
+            .append(" ")
+            .append(Strings.generateUsage(child));
+      }
+    }
+    return builder.toString();
   }
 }

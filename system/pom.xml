@@ -6,17 +6,17 @@
   <parent>
     <groupId>com.github.chevyself.starbox</groupId>
     <artifactId>starbox-commands</artifactId>
-    <version>1.0.0-ALPHA-4</version>
+    <version>1.0.0_beta</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>system</artifactId>
-  <version>1.0.0-ALPHA-4</version>
+  <version>1.0.0_beta</version>
 
   <dependencies>
     <dependency>
       <groupId>com.github.chevyself.starbox</groupId>
       <artifactId>core</artifactId>
-      <version>1.0.0-ALPHA-4</version>
+      <version>1.0.0_beta</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>

@@ -1,10 +1,9 @@
 package com.github.chevyself.starbox.jda.context;
 
-import com.github.chevyself.starbox.flags.CommandLineParser;
-import com.github.chevyself.starbox.jda.CommandManager;
-import com.github.chevyself.starbox.jda.JdaCommand;
-import com.github.chevyself.starbox.jda.messages.MessagesProvider;
-import com.github.chevyself.starbox.providers.registry.ProvidersRegistry;
+import com.github.chevyself.starbox.jda.commands.JdaCommand;
+import com.github.chevyself.starbox.messages.MessagesProvider;
+import com.github.chevyself.starbox.parsers.CommandLineParser;
+import com.github.chevyself.starbox.registry.ProvidersRegistry;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.NonNull;
@@ -20,17 +19,19 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
  * This context is used when the command is executed inside a guild. The context is still a {@link
  * User} but you can also get the {@link Member}
  */
+@Getter
 public class GuildCommandContext extends GenericCommandContext {
 
   /** The sender of the command as a member. */
-  @NonNull @Getter private final Member member;
+  @NonNull private final Member member;
   /** The guild where the command was executed. */
-  @NonNull @Getter private final Guild guild;
+  @NonNull private final Guild guild;
 
   /**
    * Create an instance.
    *
-   * @param jda the jda instance in which the {@link CommandManager} is registered
+   * @param jda the jda instance in which the {@link com.github.chevyself.starbox.jda.JdaAdapter} is
+   *     registered
    * @param commandLineParser the parser that parsed the command from the command line
    * @param command the command for which this context was created
    * @param sender the sender of the command
@@ -46,7 +47,7 @@ public class GuildCommandContext extends GenericCommandContext {
       @NonNull JdaCommand command,
       @NonNull User sender,
       @NonNull ProvidersRegistry<CommandContext> registry,
-      @NonNull MessagesProvider messagesProvider,
+      @NonNull MessagesProvider<CommandContext> messagesProvider,
       @NonNull MessageReceivedEvent event,
       @NonNull MessageChannel channel,
       @NonNull Message message) {
@@ -77,7 +78,7 @@ public class GuildCommandContext extends GenericCommandContext {
     return new GuildCommandContext(
         this.jda,
         this.commandLineParser.copyFrom(1, child.getOptions()),
-        this.command,
+        child,
         this.sender,
         this.providersRegistry,
         this.messagesProvider,

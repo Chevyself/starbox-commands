@@ -1,90 +1,54 @@
 package com.github.chevyself.starbox.bungee;
 
-import com.github.chevyself.starbox.Middleware;
-import com.github.chevyself.starbox.StarboxCommandManager;
-import com.github.chevyself.starbox.bungee.annotations.Command;
+import com.github.chevyself.starbox.CommandManager;
+import com.github.chevyself.starbox.annotations.Command;
+import com.github.chevyself.starbox.bungee.commands.BungeeAnnotatedCommand;
+import com.github.chevyself.starbox.bungee.commands.BungeeCommand;
+import com.github.chevyself.starbox.bungee.commands.BungeeParentCommand;
 import com.github.chevyself.starbox.bungee.context.CommandContext;
-import com.github.chevyself.starbox.bungee.result.BungeeResult;
-import com.github.chevyself.starbox.bungee.result.Result;
-import com.github.chevyself.starbox.exceptions.CommandRegistrationException;
-import com.github.chevyself.starbox.flags.Option;
+import com.github.chevyself.starbox.common.Async;
+import com.github.chevyself.starbox.common.CommandPermission;
 import com.github.chevyself.starbox.parsers.CommandParser;
-import com.github.chevyself.starbox.util.ClassFinder;
+import com.github.chevyself.starbox.parsers.ParentCommandSupplier;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Function;
-import lombok.Getter;
 import lombok.NonNull;
 
-/** Command parsing implementation for bungee. */
-public class BungeeCommandParser implements CommandParser<Command, CommandContext, BungeeCommand> {
-
-  @NonNull @Getter private final CommandManager commandManager;
+/** Implementation of {@link CommandParser} for the Bungee platform. */
+public class BungeeCommandParser extends CommandParser<CommandContext, BungeeCommand> {
 
   /**
-   * Create the command parser.
+   * Create a new command parser.
    *
-   * @param commandManager the command manager for bungee commands
+   * @param adapter the bungee adapter
+   * @param commandManager the command manager
    */
-  public BungeeCommandParser(@NonNull CommandManager commandManager) {
-    this.commandManager = commandManager;
+  public BungeeCommandParser(
+      @NonNull BungeeAdapter adapter,
+      @NonNull CommandManager<CommandContext, BungeeCommand> commandManager) {
+    super(adapter, commandManager);
   }
 
   @Override
-  public @NonNull Class<Command> getAnnotationClass() {
-    return Command.class;
+  public @NonNull ParentCommandSupplier<CommandContext, BungeeCommand> getParentCommandSupplier() {
+    return (annotation, clazz) ->
+        new BungeeParentCommand(
+            this.commandManager,
+            annotation,
+            (BungeeAdapter) this.adapter,
+            CommandPermission.Supplier.getPermission(clazz),
+            clazz.isAnnotationPresent(Async.class));
   }
 
   @Override
-  public @NonNull Function<Command, BungeeCommand> getParentCommandSupplier() {
-    return command ->
-        new BungeeCommand(
-            command.aliases()[0],
-            command.permission().isEmpty() ? null : command.permission(),
-            new ArrayList<>(),
-            commandManager,
-            Option.of(command.options()),
-            this.getMiddlewares(command),
-            command.async(),
-            CooldownManager.of(command.cooldown()).orElse(null),
-            Arrays.copyOfRange(command.aliases(), 1, command.aliases().length)) {
-          @Override
-          public BungeeResult execute(@NonNull CommandContext context) {
-            return Result.of(commandManager.getMessagesProvider().commandHelp(this, context));
-          }
-        };
-  }
-
-  @Override
-  public @NonNull <O> ClassFinder<O> createClassFinder(
-      Class<O> clazz, @NonNull String packageName) {
-    return CommandParser.super
-        .createClassFinder(clazz, packageName)
-        .setClassLoaderSupplier(() -> commandManager.getPlugin().getClass().getClassLoader());
-  }
-
-  @NonNull
-  private List<Middleware<CommandContext>> getMiddlewares(@NonNull Command command) {
-    return StarboxCommandManager.getMiddlewares(
-        commandManager.getGlobalMiddlewares(),
-        commandManager.getMiddlewares(),
-        command.include(),
-        command.exclude());
-  }
-
-  @Override
-  public void checkReturnType(@NonNull Method method) {
-    if (!BungeeResult.class.isAssignableFrom(method.getReturnType())
-        && !method.getReturnType().equals(Void.TYPE)) {
-      throw new CommandRegistrationException(method + " must return void or " + BungeeResult.class);
-    }
-  }
-
-  @Override
-  public BungeeCommand parseCommand(
+  public @NonNull BungeeCommand parseCommand(
       @NonNull Object object, @NonNull Method method, @NonNull Command annotation) {
-    return null;
+    return new BungeeAnnotatedCommand(
+        this.commandManager,
+        annotation,
+        object,
+        method,
+        (BungeeAdapter) this.adapter,
+        CommandPermission.Supplier.getPermission(method),
+        method.isAnnotationPresent(Async.class));
   }
 }

@@ -1,8 +1,7 @@
 package com.github.chevyself.starbox.bukkit.providers;
 
-import com.github.chevyself.starbox.bukkit.CommandManager;
 import com.github.chevyself.starbox.bukkit.context.CommandContext;
-import com.github.chevyself.starbox.bukkit.messages.MessagesProvider;
+import com.github.chevyself.starbox.bukkit.messages.BukkitMessagesProvider;
 import com.github.chevyself.starbox.bukkit.providers.type.BukkitArgumentProvider;
 import com.github.chevyself.starbox.bukkit.providers.type.BukkitExtraArgumentProvider;
 import com.github.chevyself.starbox.exceptions.ArgumentProviderException;
@@ -12,18 +11,20 @@ import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-/** Provides the {@link CommandManager} with the object {@link Player}. */
+/**
+ * Provides the {@link com.github.chevyself.starbox.CommandManager} with the object {@link Player}.
+ */
 public class PlayerProvider
     implements BukkitArgumentProvider<Player>, BukkitExtraArgumentProvider<Player> {
 
-  @NonNull private final MessagesProvider messagesProvider;
+  @NonNull private final BukkitMessagesProvider messagesProvider;
 
   /**
    * Create an instance.
    *
    * @param messagesProvider the provider of the message in case the player is not found
    */
-  public PlayerProvider(@NonNull MessagesProvider messagesProvider) {
+  public PlayerProvider(@NonNull BukkitMessagesProvider messagesProvider) {
     this.messagesProvider = messagesProvider;
   }
 
@@ -39,7 +40,8 @@ public class PlayerProvider
   }
 
   @Override
-  public @NonNull List<String> getSuggestions(@NonNull String string, CommandContext context) {
+  public @NonNull List<String> getSuggestions(
+      @NonNull String string, @NonNull CommandContext context) {
     return PlayerProvider.getPlayerNames();
   }
 
@@ -66,7 +68,7 @@ public class PlayerProvider
     if (context.getSender() instanceof Player) {
       return (Player) context.getSender();
     } else {
-      throw new ArgumentProviderException(this.messagesProvider.playersOnly(context));
+      throw new ArgumentProviderException(this.messagesProvider.onlyPlayers(context));
     }
   }
 }

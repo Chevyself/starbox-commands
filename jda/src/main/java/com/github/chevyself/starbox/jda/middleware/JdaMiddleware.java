@@ -1,8 +1,8 @@
 package com.github.chevyself.starbox.jda.middleware;
 
-import com.github.chevyself.starbox.Middleware;
 import com.github.chevyself.starbox.jda.context.CommandContext;
-import com.github.chevyself.starbox.jda.result.Result;
+import com.github.chevyself.starbox.middleware.Middleware;
+import com.github.chevyself.starbox.result.Result;
 import java.util.Optional;
 import lombok.NonNull;
 

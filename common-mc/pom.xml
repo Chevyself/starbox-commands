@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <parent>
+    <groupId>com.github.chevyself.starbox</groupId>
+    <artifactId>starbox-commands</artifactId>
+    <version>1.0.0_beta</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>common-mc</artifactId>
+  <version>1.0.0_beta</version>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.github.chevyself.starbox</groupId>
+      <artifactId>core</artifactId>
+      <version>1.0.0_beta</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.md-5</groupId>
+      <artifactId>bungeecord-chat</artifactId>
+      <version>${bungeecord-chat.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.md-5</groupId>
+      <artifactId>bungeecord-serializer</artifactId>
+      <version>${bungeecord-serializer.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>bungeecord-repo</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+  </repositories>
+</project>

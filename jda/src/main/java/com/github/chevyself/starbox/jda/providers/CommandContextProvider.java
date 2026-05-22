@@ -1,12 +1,14 @@
 package com.github.chevyself.starbox.jda.providers;
 
-import com.github.chevyself.starbox.StarboxCommandManager;
 import com.github.chevyself.starbox.jda.context.CommandContext;
 import com.github.chevyself.starbox.jda.context.GenericCommandContext;
 import com.github.chevyself.starbox.jda.providers.type.JdaExtraArgumentProvider;
 import lombok.NonNull;
 
-/** Provides the {@link StarboxCommandManager} with a {@link GenericCommandContext}. */
+/**
+ * Provides the {@link com.github.chevyself.starbox.CommandManager} with a {@link
+ * GenericCommandContext}.
+ */
 public class CommandContextProvider implements JdaExtraArgumentProvider<CommandContext> {
 
   @NonNull

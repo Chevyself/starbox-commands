@@ -5,11 +5,25 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.chevyself.starbox</groupId>
   <artifactId>starbox-commands</artifactId>
-  <version>1.0.0-ALPHA-4</version>
+  <version>1.0.0_beta</version>
   <packaging>pom</packaging>
 
   <build>
     <plugins>
+      <!-- Javadoc  -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven-javadoc-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>aggregate-jar</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+      </plugin>
       <!-- Format to google -->
       <plugin>
         <groupId>com.coveo</groupId>
@@ -33,23 +47,8 @@
           <target>8</target>
         </configuration>
       </plugin>
-      <!-- Javadoc
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${maven-javadoc-plugin.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>aggregate-jar</goal>
-            </goals>
-            <phase>package</phase>
-          </execution>
-        </executions>
-      </plugin>  -->
     </plugins>
   </build>
-
   <dependencies>
     <!-- JUnit for tests -->
     <dependency>
@@ -63,7 +62,7 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>${lombok.version}</version>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <description>An easy to use command framework for Bukkit, Bungee or JDA (Discord)</description>
@@ -71,9 +70,11 @@
   <modules>
     <module>bukkit</module>
     <module>bungee</module>
+    <module>velocity</module>
     <module>core</module>
     <module>jda</module>
     <module>system</module>
+    <module>common-mc</module>
   </modules>
 
   <properties>
@@ -84,6 +85,9 @@
     <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <bungeecord-chat.version>1.21-R0.4</bungeecord-chat.version>
+    <bungeecord-serializer.version>1.21-R0.4</bungeecord-serializer.version>
+    <bungeecord-api.version>1.21-R0.4</bungeecord-api.version>
   </properties>
 
   <repositories>

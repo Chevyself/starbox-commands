@@ -1,7 +1,7 @@
 package com.github.chevyself.starbox.bukkit.providers.type;
 
 import com.github.chevyself.starbox.bukkit.context.CommandContext;
-import com.github.chevyself.starbox.providers.type.StarboxExtraArgumentProvider;
+import com.github.chevyself.starbox.providers.StarboxExtraArgumentProvider;
 
 /**
  * An extension for bukkit extra arguments.

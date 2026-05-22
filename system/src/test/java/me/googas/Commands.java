@@ -1,33 +1,33 @@
 package me.googas;
 
+import com.github.chevyself.starbox.annotations.Command;
 import com.github.chevyself.starbox.annotations.Free;
 import com.github.chevyself.starbox.annotations.Required;
 import com.github.chevyself.starbox.arguments.ArgumentBehaviour;
 import com.github.chevyself.starbox.flags.Flag;
-import com.github.chevyself.starbox.system.Command;
-import com.github.chevyself.starbox.system.Result;
-import com.github.chevyself.starbox.system.SystemResult;
+import com.github.chevyself.starbox.result.Result;
+import com.github.chevyself.starbox.result.type.SimpleResult;
 import com.github.chevyself.starbox.system.context.CommandContext;
-import com.github.chevyself.starbox.time.annotations.TimeAmount;
+import java.time.Duration;
 import java.util.Locale;
 
 @SuppressWarnings("JavaDoc")
 @Command(
     aliases = "test",
-    options = {@Flag(aliases = "message", value = "Hello world!")})
+    flags = {@Flag(aliases = "message", value = "Hello world!")})
 public class Commands {
 
   @Command(
       aliases = "a",
-      options = {@Flag(aliases = "message", value = "Hello world!")})
-  public SystemResult a(
+      flags = {@Flag(aliases = "message", value = "Hello world!")})
+  public Result a(
       CommandContext context,
       @Required(name = "b", behaviour = ArgumentBehaviour.CONTINUOUS) String b,
-      @Required(name = "c", behaviour = ArgumentBehaviour.MULTIPLE) String c,
+      @Required(name = "c", behaviour = ArgumentBehaviour.CONTINUOUS) String c,
       @Required(name = "d") int number,
       @Required(name = "e") int number2,
       @Free(behaviour = ArgumentBehaviour.CONTINUOUS) String extra) {
-    return new Result(
+    return new SimpleResult(
         "b = "
             + b
             + ", c = "
@@ -44,7 +44,7 @@ public class Commands {
 
   @Command(
       aliases = "message",
-      options = {
+      flags = {
         @Flag(
             aliases = {
               "capitalize",
@@ -53,25 +53,24 @@ public class Commands {
             value = "false",
             valuable = false)
       })
-  public SystemResult message(
+  public Result message(
       CommandContext context, @Free(behaviour = ArgumentBehaviour.CONTINUOUS) String message) {
     String string = message == null || message.isEmpty() ? "No message was sent" : message;
-    return new Result(context.hasFlag("capitalize") ? string.toUpperCase(Locale.ROOT) : string);
+    return new SimpleResult(
+        context.hasFlag("capitalize") ? string.toUpperCase(Locale.ROOT) : string);
   }
 
-  @Command(
-      aliases = "hello",
-      cooldown = @TimeAmount(value = "10s"),
-      options = @Flag(aliases = "message", value = "World!"))
-  public SystemResult hello(CommandContext context) {
-    return new Result(context.getFlagValue("message").orElse("IDK :(")).setCooldown(true);
+  @Command(aliases = "hello", flags = @Flag(aliases = "message", value = "World!"))
+  public Result hello(CommandContext context) {
+    return new SimpleResult(context.getFlagValue("message").orElse("IDK :("));
   }
 
   @Command(aliases = "trollface")
-  public void trollface(
+  public Result trollface(
       @Required(name = "message") String message, @Required(name = "number") int number) {
     for (int i = 0; i < number; i++) {
       System.out.println(message);
     }
+    return new SimpleCooldownResult("Trolled", Duration.ofSeconds(10));
   }
 }

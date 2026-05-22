@@ -1,6 +1,8 @@
 package com.github.chevyself.starbox.system;
 
-import com.github.chevyself.starbox.flags.CommandLineParser;
+import com.github.chevyself.starbox.CommandManager;
+import com.github.chevyself.starbox.parsers.CommandLineParser;
+import com.github.chevyself.starbox.system.commands.SystemCommand;
 import com.github.chevyself.starbox.system.context.CommandContext;
 import com.github.chevyself.starbox.system.context.sender.ConsoleCommandSender;
 import java.util.Arrays;
@@ -13,12 +15,12 @@ import lombok.NonNull;
  * This object is a {@link Thread} with a {@link Scanner} which waits for {@link System#in}. This
  * checks that the line starts with the prefix if it does then it will check that the name matches a
  * {@link SystemCommand} in {@link CommandManager#getCommand(String)} if it does it will execute the
- * command and the {@link SystemResult} if it is not empty will be printed in the console
+ * command
  */
 public class CommandListener extends Thread {
 
   @NonNull private final Scanner scanner = new Scanner(System.in);
-  @NonNull private final CommandManager manager;
+  @NonNull private final CommandManager<CommandContext, SystemCommand> manager;
   @NonNull @Getter private final String prefix;
   private boolean closed = false;
 
@@ -28,7 +30,8 @@ public class CommandListener extends Thread {
    * @param manager the command manager to get the commands
    * @param prefix the prefix to differentiate messages from commands
    */
-  public CommandListener(@NonNull CommandManager manager, @NonNull String prefix) {
+  public CommandListener(
+      @NonNull CommandManager<CommandContext, SystemCommand> manager, @NonNull String prefix) {
     this.manager = manager;
     this.prefix = prefix;
   }
@@ -38,30 +41,37 @@ public class CommandListener extends Thread {
     while (!closed) {
       if (this.scanner.hasNextLine()) {
         String line = this.scanner.nextLine().trim();
-        String[] split = line.split(" ");
-        String name = split[0];
-        if (!name.startsWith(this.prefix)) {
-          continue;
-        }
-        Optional<SystemCommand> optionalCommand =
-            this.manager.getCommand(name.substring(this.prefix.length()));
-        if (optionalCommand.isPresent()) {
-          SystemCommand command = optionalCommand.get();
-          CommandLineParser parser =
-              CommandLineParser.parse(
-                  command.getOptions(), Arrays.copyOfRange(split, 1, split.length));
-          SystemResult result =
-              command.execute(
-                  new CommandContext(
-                      parser,
-                      command,
-                      ConsoleCommandSender.INSTANCE,
-                      this.manager.getProvidersRegistry(),
-                      this.manager.getMessagesProvider()));
-        } else {
-          System.out.println("Command " + name + " could not be found");
-        }
+        this.process(line);
       }
+    }
+  }
+
+  /**
+   * Process a command line.
+   *
+   * @param line the line to process
+   */
+  public void process(@NonNull String line) {
+    String[] split = line.split(" ");
+    String name = split[0];
+    if (!name.startsWith(this.prefix)) {
+      return;
+    }
+    Optional<SystemCommand> optionalCommand =
+        this.manager.getCommand(name.substring(this.prefix.length()));
+    if (optionalCommand.isPresent()) {
+      SystemCommand command = optionalCommand.get();
+      CommandLineParser parser =
+          CommandLineParser.parse(command.getOptions(), Arrays.copyOfRange(split, 1, split.length));
+      command.execute(
+          new CommandContext(
+              parser,
+              command,
+              ConsoleCommandSender.INSTANCE,
+              this.manager.getProvidersRegistry(),
+              this.manager.getMessagesProvider()));
+    } else {
+      System.out.println("Command " + name + " could not be found");
     }
   }
 

@@ -24,16 +24,13 @@ public interface StarboxFlag {
   String getDescription();
 
   /**
-   * Check if the flag has an alias. It will check with both prefixes ('--') and ('-')
+   * Check if the flag has an alias.
    *
    * @param alias the alias to check
    * @return true if this flag has the alias
    */
   default boolean hasAlias(@NonNull String alias) {
-    boolean hasPrefix = alias.startsWith("--") || alias.startsWith("-");
-    Collection<String> aliases = this.getAliases();
-    return aliases.contains(alias)
-        || (!hasPrefix && (aliases.contains("--" + alias) || alias.contains("-" + alias)));
+    return this.getAliases().contains(alias);
   }
 
   /**

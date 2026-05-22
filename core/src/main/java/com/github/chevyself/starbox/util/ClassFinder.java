@@ -32,7 +32,7 @@ public final class ClassFinder<T> {
   /** The predicate to check if the class is valid. */
   @NonNull private Predicate<Class<T>> predicate;
   /** Extra class loaders to check for classes. */
-  @NonNull private final List<ClassLoader> extras;
+  @NonNull private final List<Supplier<ClassLoader>> extras;
 
   /** The class loader supplier to check for classes. */
   @NonNull private Supplier<ClassLoader> classLoaderSupplier;
@@ -74,7 +74,7 @@ public final class ClassFinder<T> {
    */
   @NonNull
   public ClassFinder<T> checkIn(@NonNull ClassLoader loader) {
-    this.extras.add(loader);
+    this.extras.add(() -> loader);
     return this;
   }
 
@@ -160,7 +160,7 @@ public final class ClassFinder<T> {
       // Supplied
       this.checkInLoader(this.classLoaderSupplier.get());
       // Extra
-      this.extras.forEach(this::checkInLoader);
+      this.extras.forEach(supplier -> this.checkInLoader(supplier.get()));
       return classes;
     }
     return this.classes;

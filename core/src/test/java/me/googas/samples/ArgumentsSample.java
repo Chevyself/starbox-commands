@@ -34,7 +34,7 @@ public class ArgumentsSample {
   }
 
   public void AMethod(
-      StarboxCommandContext context,
+      StarboxCommandContext<?, ?> context,
       @Required String name,
       @Free String description,
       @Required(behaviour = ArgumentBehaviour.CONTINUOUS) String[] messages) {
@@ -45,7 +45,7 @@ public class ArgumentsSample {
     System.out.println(name + " has a description " + description);
   }
 
-  public void AMethod(StarboxCommandContext context) {
+  public void AMethod(StarboxCommandContext<?, ?> context) {
     // The class of the argument is StarboxCommandContext
     System.out.println(context);
   }

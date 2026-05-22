@@ -1,8 +1,7 @@
 package com.github.chevyself.starbox.bukkit.providers;
 
-import com.github.chevyself.starbox.bukkit.CommandManager;
 import com.github.chevyself.starbox.bukkit.context.CommandContext;
-import com.github.chevyself.starbox.bukkit.messages.MessagesProvider;
+import com.github.chevyself.starbox.bukkit.messages.BukkitMessagesProvider;
 import com.github.chevyself.starbox.bukkit.providers.type.BukkitArgumentProvider;
 import com.github.chevyself.starbox.exceptions.ArgumentProviderException;
 import java.util.ArrayList;
@@ -10,17 +9,20 @@ import java.util.List;
 import lombok.NonNull;
 import org.bukkit.Material;
 
-/** Provides the {@link CommandManager} with the object {@link Material}. */
+/**
+ * Provides the {@link com.github.chevyself.starbox.CommandManager} with the object {@link
+ * Material}.
+ */
 public class MaterialProvider implements BukkitArgumentProvider<Material> {
 
-  @NonNull private final MessagesProvider messagesProvider;
+  @NonNull private final BukkitMessagesProvider messagesProvider;
 
   /**
    * Create the provider.
    *
    * @param messagesProvider the messages provider if the material is invalid
    */
-  public MaterialProvider(@NonNull MessagesProvider messagesProvider) {
+  public MaterialProvider(@NonNull BukkitMessagesProvider messagesProvider) {
     this.messagesProvider = messagesProvider;
   }
 
@@ -47,7 +49,8 @@ public class MaterialProvider implements BukkitArgumentProvider<Material> {
   }
 
   @Override
-  public @NonNull List<String> getSuggestions(@NonNull String string, CommandContext context) {
+  public @NonNull List<String> getSuggestions(
+      @NonNull String string, @NonNull CommandContext context) {
     List<String> suggestions = new ArrayList<>();
     boolean prefix = string.startsWith("minecraft:");
     for (Material value : Material.values()) {

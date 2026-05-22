@@ -1,6 +1,6 @@
 package com.github.chevyself.starbox.annotations;
 
-import com.github.chevyself.starbox.StarboxCommand;
+import com.github.chevyself.starbox.commands.StarboxCommand;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

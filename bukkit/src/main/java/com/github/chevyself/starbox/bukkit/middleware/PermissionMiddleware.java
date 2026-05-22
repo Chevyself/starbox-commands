@@ -1,8 +1,9 @@
 package com.github.chevyself.starbox.bukkit.middleware;
 
 import com.github.chevyself.starbox.bukkit.context.CommandContext;
-import com.github.chevyself.starbox.bukkit.result.BukkitResult;
-import com.github.chevyself.starbox.bukkit.result.Result;
+import com.github.chevyself.starbox.bukkit.messages.BukkitMessagesProvider;
+import com.github.chevyself.starbox.common.Components;
+import com.github.chevyself.starbox.result.Result;
 import java.util.Optional;
 import lombok.NonNull;
 
@@ -12,14 +13,26 @@ import lombok.NonNull;
  */
 public class PermissionMiddleware implements BukkitMiddleware {
 
+  @NonNull private final BukkitMessagesProvider messagesProvider;
+
+  /**
+   * Create the middleware.
+   *
+   * @param messagesProvider the messages provider
+   */
+  public PermissionMiddleware(@NonNull BukkitMessagesProvider messagesProvider) {
+    this.messagesProvider = messagesProvider;
+  }
+
   @Override
-  public @NonNull Optional<BukkitResult> next(@NonNull CommandContext context) {
+  public @NonNull Optional<Result> next(@NonNull CommandContext context) {
     final String permission = context.getCommand().getPermission();
+    Result result = null;
     if (permission != null && !permission.isEmpty()) {
       if (!context.getSender().hasPermission(permission)) {
-        return Optional.of(Result.of(context.getMessagesProvider().notAllowed(context)));
+        result = Components.asResult(messagesProvider.notAllowed(context));
       }
     }
-    return Optional.empty();
+    return Optional.ofNullable(result);
   }
 }

@@ -1,97 +1,38 @@
 package com.github.chevyself.starbox.bungee.messages;
 
-import com.github.chevyself.starbox.StarboxCommand;
-import com.github.chevyself.starbox.bungee.BungeeCommand;
 import com.github.chevyself.starbox.bungee.context.CommandContext;
-import com.github.chevyself.starbox.time.TimeUtil;
-import com.github.chevyself.starbox.util.Strings;
-import java.time.Duration;
+import com.github.chevyself.starbox.messages.MessagesProvider;
 import lombok.NonNull;
-import net.md_5.bungee.api.plugin.Command;
 
-/** The default messages provider for bungee. */
-public class BungeeMessagesProvider implements MessagesProvider {
+/** The messages provider for bungee. */
+public interface BungeeMessagesProvider extends MessagesProvider<CommandContext> {
 
-  private static final String errorPrefix = "&e&o⚠";
-
-  @Override
-  public @NonNull String invalidLong(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BungeeMessagesProvider.errorPrefix + "&4&o{0} &c&ois not a valid long", string);
-  }
-
-  @Override
-  public @NonNull String invalidInteger(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BungeeMessagesProvider.errorPrefix + "&4&o{0} &c&ois not a valid integer", string);
-  }
-
-  @Override
-  public @NonNull String invalidDouble(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BungeeMessagesProvider.errorPrefix + "&4&o{0} &c&ois not a valid double", string);
-  }
-
-  @Override
-  public @NonNull String invalidBoolean(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BungeeMessagesProvider.errorPrefix + "&4&o{0} &c&ois not a valid boolean", string);
-  }
-
-  @Override
-  public @NonNull String invalidDuration(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BungeeMessagesProvider.errorPrefix + "&4&o{0} &c&ois not valid time", string);
-  }
-
-  @Override
-  public @NonNull String missingArgument(
-      @NonNull String name,
-      @NonNull String description,
-      int position,
-      @NonNull CommandContext context) {
-    return BungeeMessagesProvider.errorPrefix
-        + "&c&oYou are missing the argument &4&o"
-        + name
-        + "&c&o at position &4&o"
-        + position
-        + "&c&o: &7&o"
-        + description;
-  }
-
-  @Override
-  public @NonNull String cooldown(@NonNull CommandContext context, @NonNull Duration timeLeft) {
-    return Strings.format(
-        BungeeMessagesProvider.errorPrefix + "&4&o{0} &c&ois not valid time",
-        TimeUtil.toString(timeLeft));
-  }
-
-  @Override
-  public @NonNull String commandHelp(
-      @NonNull StarboxCommand<CommandContext, ?> command, CommandContext context) {
-    if (command instanceof BungeeCommand) {
-      BungeeCommand bungeeCommand = (BungeeCommand) command;
-      return "&c"
-          + StarboxCommand.genericHelp(
-              bungeeCommand, bungeeCommand.getChildren(), Command::getName);
-    }
-    return "&cUnknown command";
-  }
-
+  /**
+   * The message sent when the user that executed the command is not allowed to use it.
+   *
+   * @param context the context of the command
+   * @return the message to send
+   */
   @NonNull
-  @Override
-  public String notAllowed(@NonNull CommandContext context) {
-    return BungeeMessagesProvider.errorPrefix + "&c&oYou are not allowed to use this command";
-  }
+  String notAllowed(CommandContext context);
 
-  @Override
-  public @NonNull String invalidPlayer(@NonNull String string, @NonNull CommandContext context) {
-    return Strings.format(
-        BungeeMessagesProvider.errorPrefix + "&4&o{0} &c&ois not a valid player", string);
-  }
+  /**
+   * The message to send when the string does not match a proxied player.
+   *
+   * @param string the string
+   * @param context the context of the command
+   * @return the message to send
+   */
+  @NonNull
+  String invalidPlayer(@NonNull String string, @NonNull CommandContext context);
 
-  @Override
-  public @NonNull String onlyPlayers(CommandContext context) {
-    return BungeeMessagesProvider.errorPrefix + "&c&oConsole cannot use this command";
-  }
+  /**
+   * The message to send when a command that is required that the sender is a player happens to be.
+   * something else
+   *
+   * @param context the context of the command
+   * @return the message
+   */
+  @NonNull
+  String onlyPlayers(CommandContext context);
 }

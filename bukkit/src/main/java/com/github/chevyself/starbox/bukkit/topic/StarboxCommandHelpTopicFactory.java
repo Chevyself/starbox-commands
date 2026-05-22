@@ -1,21 +1,18 @@
 package com.github.chevyself.starbox.bukkit.topic;
 
-import com.github.chevyself.starbox.StarboxCommand;
-import com.github.chevyself.starbox.bukkit.CommandManager;
-import com.github.chevyself.starbox.bukkit.StarboxBukkitCommand;
-import com.github.chevyself.starbox.bukkit.messages.MessagesProvider;
+import com.github.chevyself.starbox.bukkit.BukkitCommandExecutor;
+import com.github.chevyself.starbox.bukkit.messages.BukkitMessagesProvider;
 import lombok.NonNull;
 import org.bukkit.help.HelpTopic;
 import org.bukkit.help.HelpTopicFactory;
 
 /**
- * This {@link HelpTopicFactory} is used for every time that a {@link StarboxCommand} is registered
- * using {@link CommandManager#register(StarboxBukkitCommand)} adds a {@link
- * StarboxCommandHelpTopic} to the {@link org.bukkit.help.HelpMap}
+ * Help map factory for {@link BukkitCommandExecutor}. This is used to create help topics for {@link
+ * com.github.chevyself.starbox.bukkit.commands.BukkitCommand}.
  */
-public class StarboxCommandHelpTopicFactory implements HelpTopicFactory<StarboxBukkitCommand> {
+public class StarboxCommandHelpTopicFactory implements HelpTopicFactory<BukkitCommandExecutor> {
 
-  @NonNull private final MessagesProvider provider;
+  @NonNull private final BukkitMessagesProvider provider;
 
   /**
    * Create the factory.
@@ -23,12 +20,12 @@ public class StarboxCommandHelpTopicFactory implements HelpTopicFactory<StarboxB
    * @param provider the messages' provider to format the help topics see {@link
    *     StarboxCommandHelpTopic}
    */
-  public StarboxCommandHelpTopicFactory(@NonNull MessagesProvider provider) {
+  public StarboxCommandHelpTopicFactory(@NonNull BukkitMessagesProvider provider) {
     this.provider = provider;
   }
 
   @Override
-  public @NonNull HelpTopic createTopic(@NonNull StarboxBukkitCommand command) {
-    return new StarboxCommandHelpTopic(command, null, this.provider);
+  public @NonNull HelpTopic createTopic(@NonNull BukkitCommandExecutor command) {
+    return new StarboxCommandHelpTopic(command.getCommand(), null, this.provider);
   }
 }

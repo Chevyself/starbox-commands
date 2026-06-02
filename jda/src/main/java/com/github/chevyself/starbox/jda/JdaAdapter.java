@@ -44,6 +44,22 @@ public class JdaAdapter implements Adapter<CommandContext, JdaCommand> {
   @NonNull @Getter private final Map<Long, Set<JdaCommand>> guildCommands;
   private CommandManager<CommandContext, JdaCommand> commandManager;
   private CommandListener listener;
+  private final boolean registerSlash;
+
+  /**
+   * Create the adapter.
+   *
+   * @param jda the JDA instance
+   * @param listenerOptions the listener options
+   * @param registerSlash whether to register the commands as slash commands or not.
+   */
+  public JdaAdapter(
+      @NonNull JDA jda, @NonNull ListenerOptions listenerOptions, boolean registerSlash) {
+    this.jda = jda;
+    this.listenerOptions = listenerOptions;
+    this.registerSlash = registerSlash;
+    this.guildCommands = new ConcurrentHashMap<>();
+  }
 
   /**
    * Create the adapter.
@@ -52,9 +68,7 @@ public class JdaAdapter implements Adapter<CommandContext, JdaCommand> {
    * @param listenerOptions the listener options
    */
   public JdaAdapter(@NonNull JDA jda, @NonNull ListenerOptions listenerOptions) {
-    this.jda = jda;
-    this.listenerOptions = listenerOptions;
-    this.guildCommands = new ConcurrentHashMap<>();
+    this(jda, listenerOptions, true);
   }
 
   /**
@@ -87,6 +101,7 @@ public class JdaAdapter implements Adapter<CommandContext, JdaCommand> {
 
   @Override
   public void onRegister(@NonNull JdaCommand command) {
+    if (!this.registerSlash) return;
     this.jda
         .upsertCommand(command.toCommandData())
         .queue(created -> command.setId(created.getId()));
@@ -94,6 +109,7 @@ public class JdaAdapter implements Adapter<CommandContext, JdaCommand> {
 
   @Override
   public void onUnregister(@NonNull JdaCommand command) {
+    if (!this.registerSlash) return;
     command.getId().ifPresent(id -> this.jda.deleteCommandById(id).queue());
     command.setId(null);
   }

@@ -10,7 +10,6 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jda</artifactId>
-  <version>1.0.0_beta</version>
 
   <dependencies>
     <dependency>

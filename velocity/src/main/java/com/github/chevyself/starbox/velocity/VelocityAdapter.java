@@ -5,6 +5,7 @@ import com.github.chevyself.starbox.CommandManagerBuilder;
 import com.github.chevyself.starbox.adapters.Adapter;
 import com.github.chevyself.starbox.commands.CommandBuilder;
 import com.github.chevyself.starbox.messages.MessagesProvider;
+import com.github.chevyself.starbox.middleware.CooldownMiddleware;
 import com.github.chevyself.starbox.parsers.CommandMetadataParser;
 import com.github.chevyself.starbox.parsers.CommandParser;
 import com.github.chevyself.starbox.parsers.EmptyCommandMetadataParser;
@@ -83,7 +84,8 @@ public class VelocityAdapter implements Adapter<CommandContext, VelocityCommand>
       this.logger.severe(
           "Failed to register some middlewares, as the MessagesProvider is not a VelocityMessagesProvider");
     }
-    middlewares.addGlobalMiddleware(new VelocityResultHandlingMiddleware());
+    middlewares.addGlobalMiddlewares(
+        new CooldownMiddleware<>(messagesProvider), new VelocityResultHandlingMiddleware());
   }
 
   @Override

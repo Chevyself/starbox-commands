@@ -7,12 +7,15 @@ import com.github.chevyself.starbox.bungee.commands.BungeeBuiltCommand;
 import com.github.chevyself.starbox.bungee.commands.BungeeCommand;
 import com.github.chevyself.starbox.bungee.context.CommandContext;
 import com.github.chevyself.starbox.bungee.messages.BungeeMessagesProvider;
+import com.github.chevyself.starbox.bungee.middleware.BungeeResultHandlingMiddleware;
+import com.github.chevyself.starbox.bungee.middleware.PermissionMiddleware;
 import com.github.chevyself.starbox.bungee.providers.CommandContextProvider;
 import com.github.chevyself.starbox.bungee.providers.CommandSenderProvider;
 import com.github.chevyself.starbox.bungee.providers.ProxiedPlayerProvider;
 import com.github.chevyself.starbox.commands.CommandBuilder;
 import com.github.chevyself.starbox.messages.GenericMessagesProvider;
 import com.github.chevyself.starbox.messages.MessagesProvider;
+import com.github.chevyself.starbox.middleware.CooldownMiddleware;
 import com.github.chevyself.starbox.parsers.CommandMetadataParser;
 import com.github.chevyself.starbox.parsers.EmptyCommandMetadataParser;
 import com.github.chevyself.starbox.registry.MiddlewareRegistry;
@@ -72,7 +75,21 @@ public class BungeeAdapter implements Adapter<CommandContext, BungeeCommand> {
   @Override
   public void registerDefaultMiddlewares(
       @NonNull CommandManagerBuilder<CommandContext, BungeeCommand> builder,
-      @NonNull MiddlewareRegistry<CommandContext> middlewares) {}
+      @NonNull MiddlewareRegistry<CommandContext> middlewares) {
+    MiddlewareRegistry<CommandContext> middlewareRegistry = builder.getMiddlewareRegistry();
+    MessagesProvider<CommandContext> provider = builder.getMessagesProvider();
+    if (provider instanceof BungeeMessagesProvider) {
+      BungeeMessagesProvider bungee = (BungeeMessagesProvider) provider;
+      middlewareRegistry.addGlobalMiddleware(new PermissionMiddleware(bungee));
+    } else {
+      this.plugin
+          .getLogger()
+          .severe(
+              "Failed to register some middlewares, as the MessagesProvider is not a BungeeMessagesProvider");
+    }
+    middlewareRegistry.addGlobalMiddlewares(
+        new CooldownMiddleware<>(provider), new BungeeResultHandlingMiddleware());
+  }
 
   @Override
   public void onBuilt(@NonNull CommandManager<CommandContext, BungeeCommand> built) {}

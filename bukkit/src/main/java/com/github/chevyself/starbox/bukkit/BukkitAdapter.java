@@ -21,6 +21,7 @@ import com.github.chevyself.starbox.bukkit.utils.BukkitUtils;
 import com.github.chevyself.starbox.commands.CommandBuilder;
 import com.github.chevyself.starbox.exceptions.CommandRegistrationException;
 import com.github.chevyself.starbox.messages.MessagesProvider;
+import com.github.chevyself.starbox.middleware.CooldownMiddleware;
 import com.github.chevyself.starbox.parsers.CommandMetadataParser;
 import com.github.chevyself.starbox.parsers.CommandParser;
 import com.github.chevyself.starbox.parsers.EmptyCommandMetadataParser;
@@ -120,7 +121,8 @@ public class BukkitAdapter implements Adapter<CommandContext, BukkitCommand> {
           .severe(
               "Failed to register some middlewares, as the MessagesProvider is not a BukkitMessagesProvider");
     }
-    middlewares.addGlobalMiddleware(new BukkitResultHandlingMiddleware());
+    middlewares.addGlobalMiddlewares(
+        new CooldownMiddleware<>(provider), new BukkitResultHandlingMiddleware());
   }
 
   @Override
